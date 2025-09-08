@@ -124,8 +124,8 @@
             "http://0.0.0.0:8080",
             "http://127.0.0.1:8080"
         ],
-        "username": "",
-        "password": ""
+        "username": "admin",
+        "password": "admin"
     },
     "bot_name": "cypTrade",
     "initial_state": "running",
