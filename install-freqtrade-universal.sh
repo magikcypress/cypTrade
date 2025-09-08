@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Script d'installation FreqTrad pour serveur
-# Usage: ./install-freqtrade.sh
+# Script d'installation FreqTrad universel pour serveur
+# Détecte automatiquement la version de Python disponible
+# Usage: ./install-freqtrade-universal.sh
 
 set -e  # Arrêter en cas d'erreur
 
@@ -40,8 +41,6 @@ fi
 FREQTRADE_USER="freqtrade"
 FREQTRADE_HOME="/home/$FREQTRADE_USER"
 FREQTRADE_DIR="$FREQTRADE_HOME/cypTrade"
-PYTHON_VERSION="3.11"
-VENV_DIR="$FREQTRADE_DIR/venv"
 
 print_message "=== Installation de FreqTrad sur le serveur ==="
 
@@ -49,21 +48,10 @@ print_message "=== Installation de FreqTrad sur le serveur ==="
 print_message "Mise à jour du système..."
 sudo apt update && sudo apt upgrade -y
 
-# 2. Installation des dépendances système
-print_message "Installation des dépendances système..."
-
-# Ajouter le dépôt deadsnakes pour Python 3.11
-print_message "Ajout du dépôt deadsnakes pour Python 3.11..."
-sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt update
-
-# Installer Python 3.11 et les dépendances
+# 2. Installation des dépendances de base
+print_message "Installation des dépendances de base..."
 sudo apt install -y \
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
-    python3-pip \
+    software-properties-common \
     git \
     curl \
     wget \
@@ -83,19 +71,78 @@ sudo apt install -y \
     libfribidi-dev \
     libxcb1-dev
 
-# Vérifier l'installation de Python 3.11
-if ! command -v python3.11 &> /dev/null; then
-    print_error "Python 3.11 n'a pas pu être installé"
-    print_message "Tentative d'installation de Python 3.10..."
-    sudo apt install -y python3.10 python3.10-venv python3.10-dev
-    PYTHON_VERSION="3.10"
-else
-    PYTHON_VERSION="3.11"
+# 3. Détection et installation de Python
+print_message "Détection de la version de Python disponible..."
+
+# Fonction pour vérifier si une version de Python est disponible
+check_python_version() {
+    local version=$1
+    if command -v python$version &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Fonction pour installer une version de Python
+install_python_version() {
+    local version=$1
+    print_message "Installation de Python $version..."
+    
+    case $version in
+        "3.11")
+            sudo add-apt-repository -y ppa:deadsnakes/ppa
+            sudo apt update
+            sudo apt install -y python3.11 python3.11-venv python3.11-dev
+            ;;
+        "3.10")
+            sudo add-apt-repository -y ppa:deadsnakes/ppa
+            sudo apt update
+            sudo apt install -y python3.10 python3.10-venv python3.10-dev
+            ;;
+        "3.9")
+            sudo add-apt-repository -y ppa:deadsnakes/ppa
+            sudo apt update
+            sudo apt install -y python3.9 python3.9-venv python3.9-dev
+            ;;
+        "3.8")
+            sudo apt install -y python3.8 python3.8-venv python3.8-dev
+            ;;
+        *)
+            print_error "Version de Python $version non supportée"
+            return 1
+            ;;
+    esac
+}
+
+# Détecter la version de Python à utiliser
+PYTHON_VERSION=""
+for version in "3.11" "3.10" "3.9" "3.8"; do
+    if check_python_version $version; then
+        PYTHON_VERSION=$version
+        print_success "Python $version trouvé sur le système"
+        break
+    fi
+done
+
+# Si aucune version n'est trouvée, essayer d'installer Python 3.11
+if [ -z "$PYTHON_VERSION" ]; then
+    print_message "Aucune version de Python compatible trouvée, installation de Python 3.11..."
+    if install_python_version "3.11"; then
+        PYTHON_VERSION="3.11"
+    elif install_python_version "3.10"; then
+        PYTHON_VERSION="3.10"
+    elif install_python_version "3.9"; then
+        PYTHON_VERSION="3.9"
+    else
+        print_error "Impossible d'installer une version compatible de Python"
+        exit 1
+    fi
 fi
 
-print_success "Python $PYTHON_VERSION installé avec succès"
+print_success "Python $PYTHON_VERSION sera utilisé"
 
-# 3. Création de l'utilisateur FreqTrad (si n'existe pas)
+# 4. Création de l'utilisateur FreqTrad (si n'existe pas)
 if ! id "$FREQTRADE_USER" &>/dev/null; then
     print_message "Création de l'utilisateur $FREQTRADE_USER..."
     sudo useradd -m -s /bin/bash $FREQTRADE_USER
@@ -105,12 +152,12 @@ else
     print_warning "L'utilisateur $FREQTRADE_USER existe déjà"
 fi
 
-# 4. Configuration du répertoire de travail
+# 5. Configuration du répertoire de travail
 print_message "Configuration du répertoire de travail..."
 sudo mkdir -p $FREQTRADE_DIR
 sudo chown $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 
-# 5. Cloner ou copier le projet
+# 6. Cloner ou copier le projet
 if [ -d "$FREQTRADE_DIR/.git" ]; then
     print_message "Mise à jour du projet existant..."
     sudo -u $FREQTRADE_USER git -C $FREQTRADE_DIR pull
@@ -120,25 +167,26 @@ else
     sudo chown -R $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 fi
 
-# 6. Création de l'environnement virtuel
+# 7. Création de l'environnement virtuel
+VENV_DIR="$FREQTRADE_DIR/venv"
 print_message "Création de l'environnement virtuel Python $PYTHON_VERSION..."
 sudo -u $FREQTRADE_USER python$PYTHON_VERSION -m venv $VENV_DIR
 
-# 7. Activation et installation des dépendances
+# 8. Activation et installation des dépendances
 print_message "Installation des dépendances Python..."
 sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install --upgrade pip"
 sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install -r $FREQTRADE_DIR/requirements.txt"
 
-# 8. Installation de FreqTrad UI
+# 9. Installation de FreqTrad UI
 print_message "Installation de FreqTrad UI..."
 sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && freqtrade install-ui"
 
-# 9. Configuration des permissions
+# 10. Configuration des permissions
 print_message "Configuration des permissions..."
 sudo chown -R $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 sudo chmod +x $FREQTRADE_DIR/scripts/*.sh 2>/dev/null || true
 
-# 10. Création du fichier .env
+# 11. Création du fichier .env
 print_message "Création du fichier .env..."
 sudo -u $FREQTRADE_USER tee $FREQTRADE_DIR/.env > /dev/null << EOF
 # Configuration FreqTrad
@@ -155,7 +203,7 @@ API_USERNAME=admin
 API_PASSWORD=$(openssl rand -hex 16)
 EOF
 
-# 11. Création du service systemd
+# 12. Création du service systemd
 print_message "Création du service systemd..."
 sudo tee /etc/systemd/system/freqtrade.service > /dev/null << EOF
 [Unit]
@@ -176,17 +224,17 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-# 12. Rechargement et activation du service
+# 13. Rechargement et activation du service
 print_message "Configuration du service systemd..."
 sudo systemctl daemon-reload
 sudo systemctl enable freqtrade
 
-# 13. Configuration du pare-feu
+# 14. Configuration du pare-feu
 print_message "Configuration du pare-feu..."
 sudo ufw allow 8080/tcp comment "FreqTrad Web Interface"
 sudo ufw --force enable
 
-# 14. Création des scripts de gestion
+# 15. Création des scripts de gestion
 print_message "Création des scripts de gestion..."
 
 # Script de démarrage
@@ -220,7 +268,7 @@ EOF
 # Rendre les scripts exécutables
 sudo chmod +x $FREQTRADE_DIR/*.sh
 
-# 15. Création du script de mise à jour
+# 16. Création du script de mise à jour
 sudo -u $FREQTRADE_USER tee $FREQTRADE_DIR/update.sh > /dev/null << 'EOF'
 #!/bin/bash
 echo "Mise à jour de FreqTrad..."
@@ -233,12 +281,13 @@ EOF
 
 sudo chmod +x $FREQTRADE_DIR/update.sh
 
-# 16. Affichage des informations finales
+# 17. Affichage des informations finales
 print_success "=== Installation terminée avec succès ! ==="
 echo
 print_message "Informations importantes:"
 echo "  - Répertoire FreqTrad: $FREQTRADE_DIR"
 echo "  - Utilisateur: $FREQTRADE_USER"
+echo "  - Python Version: $PYTHON_VERSION"
 echo "  - Interface web: http://$(curl -s ifconfig.me):8080"
 echo "  - Identifiants: admin / $(sudo cat $FREQTRADE_DIR/.env | grep API_PASSWORD | cut -d'=' -f2)"
 echo
