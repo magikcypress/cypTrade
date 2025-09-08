@@ -13,12 +13,14 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - API_USERNAME=${API_USERNAME}
       - API_PASSWORD=${API_PASSWORD}
+      - FREQTRADE_API_SERVER_LISTEN_IP=0.0.0.0
+      - FREQTRADE_API_SERVER_LISTEN_PORT=8080
     volumes:
       - ./user_data:/app/user_data
       - ./logs:/app/logs
     ports:
       - "8080:8080"
-    command: freqtrade trade --config config.json --strategy SampleStrategy
+    command: freqtrade trade --config config-test.json --strategy SampleStrategy
 
   # Service pour le monitoring (optionnel)
   monitoring:

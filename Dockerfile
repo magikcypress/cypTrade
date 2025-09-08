@@ -15,11 +15,15 @@ WORKDIR /app
 # Copier les fichiers de configuration
 COPY requirements.txt .
 COPY config.json .
+COPY config-test.json .
 COPY freqtrade_hyperopt.json .
 COPY .env .
 
 # Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Installer FreqTrad UI
+RUN freqtrade install-ui
 
 # Copier le code source
 COPY user_data/ ./user_data/

@@ -33,19 +33,14 @@
     },
     "exchange": {
         "name": "binance",
-        "key": "${BINANCE_API_KEY}",
-        "secret": "${BINANCE_SECRET}",
+        "key": "test_key",
+        "secret": "test_secret",
         "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
             "BTC/USDC",
             "ETH/USDC",
-            "BNB/USDC",
-            "ADA/USDC",
-            "SOL/USDC",
-            "DOT/USDC",
-            "LINK/USDC",
-            "MATIC/USDC"
+            "BNB/USDC"
         ],
         "pair_blacklist": [
             "BNB/BTC",
@@ -59,7 +54,7 @@
     ],
     "edge": {
         "enabled": false,
-        "process_throttle_secs": 3600,
+        "process_throttle_secs": 5,
         "calculate_since_number_of_days": 7,
         "allowed_risk": 0.01,
         "stoploss_range_min": -0.01,
@@ -72,9 +67,9 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
-        "token": "${TELEGRAM_TOKEN}",
-        "chat_id": "${TELEGRAM_CHAT_ID}",
+        "enabled": false,
+        "token": "test_token",
+        "chat_id": "123456789",
         "balance_dust_level": 0.01,
         "reload": true,
         "allow_custom_messages": true,
@@ -123,10 +118,14 @@
         "listen_port": 8080,
         "verbosity": "error",
         "enable_openapi": false,
-        "jwt_secret": "${JWT_SECRET}",
-        "CORS_origins": [],
-        "username": "${API_USERNAME}",
-        "password": "${API_PASSWORD}"
+        "jwt_secret": "test_jwt_secret",
+        "CORS_origins": [
+            "http://localhost:8080",
+            "http://0.0.0.0:8080",
+            "http://127.0.0.1:8080"
+        ],
+        "username": "",
+        "password": ""
     },
     "bot_name": "cypTrade",
     "initial_state": "running",
