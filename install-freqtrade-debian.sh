@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Script d'installation FreqTrad universel pour serveur
-# Détecte automatiquement la version de Python disponible
-# Usage: ./install-freqtrade-universal.sh
+# Script d'installation FreqTrad pour Debian
+# Usage: ./install-freqtrade-debian.sh
 
 set -e  # Arrêter en cas d'erreur
 
@@ -42,7 +41,7 @@ FREQTRADE_USER="freqtrade"
 FREQTRADE_HOME="/home/$FREQTRADE_USER"
 FREQTRADE_DIR="$FREQTRADE_HOME/cypTrade"
 
-print_message "=== Installation de FreqTrad sur le serveur ==="
+print_message "=== Installation de FreqTrad sur Debian ==="
 
 # 1. Mise à jour du système
 print_message "Mise à jour du système..."
@@ -50,137 +49,35 @@ sudo apt update && sudo apt upgrade -y
 
 # 2. Installation des dépendances de base
 print_message "Installation des dépendances de base..."
+sudo apt install -y \
+    git \
+    curl \
+    wget \
+    unzip \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    tcl8.6-dev \
+    tk8.6-dev \
+    python3-tk \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libxcb1-dev
 
-# Détecter la distribution
-if [ -f /etc/debian_version ]; then
-    DISTRO="debian"
-    print_message "Distribution Debian détectée"
-elif [ -f /etc/ubuntu_version ]; then
-    DISTRO="ubuntu"
-    print_message "Distribution Ubuntu détectée"
-else
-    DISTRO="unknown"
-    print_warning "Distribution inconnue, utilisation des packages Debian"
-fi
-
-# Installer les packages selon la distribution
-if [ "$DISTRO" = "ubuntu" ]; then
-    sudo apt install -y \
-        software-properties-common \
-        git \
-        curl \
-        wget \
-        unzip \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        libjpeg-dev \
-        zlib1g-dev \
-        libfreetype6-dev \
-        liblcms2-dev \
-        libwebp-dev \
-        tcl8.6-dev \
-        tk8.6-dev \
-        python3-tk \
-        libharfbuzz-dev \
-        libfribidi-dev \
-        libxcb1-dev
-else
-    # Packages pour Debian
-    sudo apt install -y \
-        git \
-        curl \
-        wget \
-        unzip \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        libjpeg-dev \
-        zlib1g-dev \
-        libfreetype6-dev \
-        liblcms2-dev \
-        libwebp-dev \
-        tcl8.6-dev \
-        tk8.6-dev \
-        python3-tk \
-        libharfbuzz-dev \
-        libfribidi-dev \
-        libxcb1-dev
-fi
-
-# 3. Détection et installation de Python
+# 3. Détection de la version de Python
 print_message "Détection de la version de Python disponible..."
 
-# Fonction pour vérifier si une version de Python est disponible
-check_python_version() {
-    local version=$1
-    if command -v python$version &> /dev/null; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Fonction pour installer une version de Python
-install_python_version() {
-    local version=$1
-    print_message "Installation de Python $version..."
-    
-    if [ "$DISTRO" = "ubuntu" ]; then
-        # Ubuntu avec PPA deadsnakes
-        case $version in
-            "3.11")
-                sudo add-apt-repository -y ppa:deadsnakes/ppa
-                sudo apt update
-                sudo apt install -y python3.11 python3.11-venv python3.11-dev
-                ;;
-            "3.10")
-                sudo add-apt-repository -y ppa:deadsnakes/ppa
-                sudo apt update
-                sudo apt install -y python3.10 python3.10-venv python3.10-dev
-                ;;
-            "3.9")
-                sudo add-apt-repository -y ppa:deadsnakes/ppa
-                sudo apt update
-                sudo apt install -y python3.9 python3.9-venv python3.9-dev
-                ;;
-            "3.8")
-                sudo apt install -y python3.8 python3.8-venv python3.8-dev
-                ;;
-            *)
-                print_error "Version de Python $version non supportée"
-                return 1
-                ;;
-        esac
-    else
-        # Debian - utiliser les dépôts officiels
-        case $version in
-            "3.11")
-                # Pour Debian, essayer d'installer depuis les backports
-                sudo apt install -y -t trixie-backports python3.11 python3.11-venv python3.11-dev || \
-                sudo apt install -y python3.11 python3.11-venv python3.11-dev
-                ;;
-            "3.10")
-                sudo apt install -y python3.10 python3.10-venv python3.10-dev
-                ;;
-            "3.9")
-                sudo apt install -y python3.9 python3.9-venv python3.9-dev
-                ;;
-            "3.8")
-                sudo apt install -y python3.8 python3.8-venv python3.8-dev
-                ;;
-            *)
-                print_error "Version de Python $version non supportée"
-                return 1
-                ;;
-        esac
-    fi
-}
-
-# Détecter la version de Python à utiliser
+# Vérifier les versions disponibles
+PYTHON_VERSIONS=("3.11" "3.10" "3.9" "3.8")
 PYTHON_VERSION=""
-for version in "3.11" "3.10" "3.9" "3.8"; do
-    if check_python_version $version; then
+
+for version in "${PYTHON_VERSIONS[@]}"; do
+    if command -v python$version &> /dev/null; then
         PYTHON_VERSION=$version
         print_success "Python $version trouvé sur le système"
         break
@@ -190,15 +87,26 @@ done
 # Si aucune version n'est trouvée, essayer d'installer Python 3.11
 if [ -z "$PYTHON_VERSION" ]; then
     print_message "Aucune version de Python compatible trouvée, installation de Python 3.11..."
-    if install_python_version "3.11"; then
+    
+    # Essayer d'installer depuis les backports
+    if sudo apt install -y -t trixie-backports python3.11 python3.11-venv python3.11-dev; then
         PYTHON_VERSION="3.11"
-    elif install_python_version "3.10"; then
-        PYTHON_VERSION="3.10"
-    elif install_python_version "3.9"; then
-        PYTHON_VERSION="3.9"
+        print_success "Python 3.11 installé depuis les backports"
     else
-        print_error "Impossible d'installer une version compatible de Python"
-        exit 1
+        # Essayer d'installer depuis les dépôts standards
+        if sudo apt install -y python3.11 python3.11-venv python3.11-dev; then
+            PYTHON_VERSION="3.11"
+            print_success "Python 3.11 installé depuis les dépôts standards"
+        else
+            # Essayer Python 3.10
+            if sudo apt install -y python3.10 python3.10-venv python3.10-dev; then
+                PYTHON_VERSION="3.10"
+                print_success "Python 3.10 installé"
+            else
+                print_error "Impossible d'installer une version compatible de Python"
+                exit 1
+            fi
+        fi
     fi
 fi
 
@@ -293,8 +201,8 @@ sudo systemctl enable freqtrade
 
 # 14. Configuration du pare-feu
 print_message "Configuration du pare-feu..."
-sudo ufw allow 8080/tcp comment "FreqTrad Web Interface"
-sudo ufw --force enable
+sudo ufw allow 8080/tcp comment "FreqTrad Web Interface" 2>/dev/null || true
+sudo ufw --force enable 2>/dev/null || true
 
 # 15. Création des scripts de gestion
 print_message "Création des scripts de gestion..."
@@ -350,7 +258,7 @@ print_message "Informations importantes:"
 echo "  - Répertoire FreqTrad: $FREQTRADE_DIR"
 echo "  - Utilisateur: $FREQTRADE_USER"
 echo "  - Python Version: $PYTHON_VERSION"
-echo "  - Interface web: http://$(curl -s ifconfig.me):8080"
+echo "  - Interface web: http://$(curl -s ifconfig.me 2>/dev/null || echo 'localhost'):8080"
 echo "  - Identifiants: admin / $(sudo cat $FREQTRADE_DIR/.env | grep API_PASSWORD | cut -d'=' -f2)"
 echo
 print_message "Commandes utiles:"
