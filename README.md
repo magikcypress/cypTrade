@@ -1,191 +1,80 @@
 # CypTrade - FreqTrad Configuration
 
-Ce projet configure FreqTrad pour le trading algorithmique avec des stratégies personnalisées.
+Ce projet configure FreqTrad pour le trading algorithmique avec des stratégies personnalisées et une interface web complète.
 
-## 🚀 Installation
+## 🚀 Installation Rapide
 
-### Prérequis
+### Installation Locale (macOS/Linux)
 
-- Python 3.8 ou supérieur
-- pip (gestionnaire de paquets Python)
+```bash
+# 1. Cloner le projet
+git clone <repository-url>
+cd cypTrade
 
-### Installation Automatique (Recommandé)
+# 2. Créer l'environnement virtuel
+python3 -m venv venv
+source venv/bin/activate
 
-#### Pour Debian/Ubuntu avec Python 3.13
+# 3. Installer FreqTrad (sans utiliser /tmp)
+mkdir -p ~/.pip-temp
+export TMPDIR="$HOME/.pip-temp"
+export TEMP="$HOME/.pip-temp"
+export TMP="$HOME/.pip-temp"
+
+pip install freqtrade --no-cache-dir
+
+# 4. Installer l'interface web
+freqtrade install-ui
+
+# 5. Configurer les variables d'environnement
+cp .env.example .env
+# Éditer .env avec vos clés API
+```
+
+### Installation Automatique
 
 ```bash
 # Rendre le script exécutable
-chmod +x install-freqtrade-python313-optimized.sh
+chmod +x quick-install.sh
 
-# Exécuter l'installation complète
-./install-freqtrade-python313-optimized.sh
+# Exécuter l'installation
+./quick-install.sh
 ```
-
-Ce script automatise :
-
-- Installation de Python 3.13
-- Installation des dépendances système
-- Création de l'utilisateur FreqTrad
-- Configuration de l'environnement virtuel
-- Installation de FreqTrad et de l'interface web
-- Configuration du service systemd
-- Configuration du pare-feu
-
-#### Installation Manuelle
-
-```bash
-# Cloner le projet (si nécessaire)
-cd /Users/cyp/Documents/work/blockchain/cypTrade
-
-# Créer un environnement virtuel (recommandé)
-python -m venv venv
-source venv/bin/activate  # Sur macOS/Linux
-# ou
-venv\Scripts\activate  # Sur Windows
-
-# Installer les dépendances
-pip install -r requirements.txt
-```
-
-### Installation de TA-Lib
-
-TA-Lib nécessite une installation spéciale :
-
-**Sur macOS (avec Homebrew):**
-
-```bash
-brew install ta-lib
-pip install TA-Lib
-```
-
-**Sur Ubuntu/Debian:**
-
-```bash
-sudo apt-get install libta-lib-dev
-pip install TA-Lib
-```
-
-**Sur Windows:**
-Téléchargez le wheel approprié depuis [https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib](https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib)
 
 ## ⚙️ Configuration
 
-1. **Copier le fichier d'environnement :**
+### 1. Variables d'Environnement
 
-```bash
-cp env.example .env
-```
-
-2. **Configurer vos clés API :**
-Éditez le fichier `.env` et ajoutez vos clés d'échange :
+Créez un fichier `.env` avec vos clés API :
 
 ```env
-EXCHANGE_KEY=your_exchange_api_key_here
-EXCHANGE_SECRET=your_exchange_secret_here
+# Binance API
+BINANCE_API_KEY=your_api_key_here
+BINANCE_SECRET=your_secret_here
+
+# JWT Secret pour l'API
 JWT_SECRET=your_jwt_secret_here
+
+# Telegram Bot (optionnel)
+TELEGRAM_TOKEN=your_telegram_token
+TELEGRAM_CHAT_ID=your_chat_id
 ```
 
-3. **Configurer l'échange :**
-Éditez `config.json` pour configurer votre échange préféré (Binance par défaut).
+### 2. Configuration Principale
 
-## 📊 Utilisation
+Le fichier `config.json` est pré-configuré avec :
 
-### Mode Dry Run (Test)
+- **Échange** : Binance
+- **Devise de base** : USDC
+- **Mode** : Dry Run (simulation)
+- **Timeframe** : 5 minutes
+- **Paires** : BTC/USDC, ETH/USDC, BNB/USDC, ADA/USDC, SOL/USDC, DOT/USDC, LINK/USDC, MATIC/USDC
+- **API Server** : Activé sur le port 8080
+- **Interface Web** : FreqUI intégrée
 
-```bash
-freqtrade trade --config config.json --strategy SampleStrategy
-```
+## 🎯 Stratégies Disponibles
 
-### Mode Live (Attention !)
-
-```bash
-freqtrade trade --config config.json --strategy SampleStrategy
-```
-
-### Backtesting
-
-```bash
-freqtrade backtesting --config config.json --strategy SampleStrategy --timerange 20231201-20231231
-```
-
-### Hyperopt (Optimisation des paramètres)
-
-```bash
-freqtrade hyperopt --config config.json --strategy SampleStrategy --hyperopt-loss SharpeHyperOptLoss --epochs 100
-```
-
-### Interface Web
-
-#### Installation Automatique
-
-L'interface web est automatiquement installée et configurée avec le script d'installation.
-
-#### Installation Manuelle
-
-```bash
-freqtrade trade --config config.json --strategy SampleStrategy --api-server
-```
-
-#### Accès à l'Interface
-
-- **URL** : <http://127.0.0.1:8080> (accès local sécurisé)
-- **Identifiants** : `admin` / `NouveauMotDePasse2025!` (par défaut)
-- **Changer le mot de passe** : `./change-password.sh "VotreMotDePasse"`
-
-### Bot Telegram
-
-```bash
-freqtrade trade --config config.json --strategy SampleStrategy
-```
-
-Configurez votre bot Telegram pour recevoir des notifications de trading. Voir [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) pour la configuration détaillée.
-
-## 📁 Structure du Projet
-
-```
-cypTrade/
-├── config.json                 # Configuration principale
-├── config-test.json           # Configuration de test
-├── freqtrade_hyperopt.json    # Configuration hyperopt
-├── requirements.txt            # Dépendances Python
-├── .env                        # Variables d'environnement
-├── README.md                   # Ce fichier
-├── INSTALLATION.md             # Guide d'installation détaillé
-├── DEPLOYMENT.md               # Guide de déploiement
-├── docker-compose.yml          # Configuration Docker
-├── install-freqtrade-python313-optimized.sh  # Script d'installation Debian
-├── install-freqtrade-simple.sh               # Script d'installation simple
-├── change-password.sh          # Script de changement de mot de passe
-├── secure-config.sh            # Script de sécurisation
-├── logs.sh                     # Script de visualisation des logs
-└── user_data/
-    └── strategies/
-        ├── SampleStrategy.py   # Stratégie d'exemple
-        └── PowerTowerStrategy.py # Stratégie avancée
-```
-
-## 🛠️ Scripts de Gestion
-
-### Scripts d'Installation
-
-- **`install-freqtrade-python313-optimized.sh`** : Installation complète pour Debian/Ubuntu avec Python 3.13
-- **`install-freqtrade-simple.sh`** : Installation simple et rapide
-- **`check-python.sh`** : Vérification de la compatibilité Python
-
-### Scripts de Configuration
-
-- **`change-password.sh`** : Changement du mot de passe FreqTrad
-- **`secure-config.sh`** : Sécurisation de la configuration
-- **`logs.sh`** : Visualisation des logs en temps réel
-
-### Scripts de Déploiement
-
-- **`deploy.sh`** : Déploiement Docker
-- **`deploy-to-server.sh`** : Déploiement sur serveur distant
-
-## 🎯 Stratégies
-
-### SampleStrategy
+### 1. SampleStrategy
 
 Stratégie d'exemple basée sur :
 
@@ -195,101 +84,203 @@ Stratégie d'exemple basée sur :
 - Conditions d'entrée : RSI < 30 et prix sous la bande inférieure de Bollinger
 - Conditions de sortie : RSI > 70 et prix au-dessus de la bande supérieure de Bollinger
 
-### Créer une nouvelle stratégie
+### 2. PowerTowerStrategy
 
-1. Copiez `SampleStrategy.py` vers un nouveau fichier
-2. Renommez la classe
-3. Modifiez les paramètres selon vos besoins
-4. Testez avec le mode dry run
+Stratégie avancée avec :
 
-## 🔧 Commandes Utiles
+- Indicateurs multiples
+- Gestion des risques améliorée
+- Support des timeframes informatifs
+- Vérifications de sécurité robustes
 
-### Gestion du Service (après installation automatique)
+### 3. Autres Stratégies
+
+- **BalancedAdvancedStrategy** : Stratégie équilibrée avec indicateurs avancés
+- **BandtasticStrategy** : Basée sur les bandes de Bollinger
+- **MultiMAStrategy** : Utilise plusieurs moyennes mobiles
+- **SimpleTestStrategy** : Stratégie de test simple
+
+## 🖥️ Interface Web
+
+### Démarrage de l'Interface
 
 ```bash
-# Démarrer FreqTrad
-sudo systemctl start freqtrade
+# Démarrer FreqTrad avec l'interface web
+./start-webserver.sh
 
-# Arrêter FreqTrad
-sudo systemctl stop freqtrade
-
-# Redémarrer FreqTrad
-sudo systemctl restart freqtrade
-
-# Voir le statut
-sudo systemctl status freqtrade
-
-# Voir les logs
-sudo journalctl -u freqtrade -f
+# Ou manuellement
+source venv/bin/activate
+freqtrade trade --config config.json --strategy SampleStrategy
 ```
 
-### Commandes FreqTrad
+### Accès à l'Interface
+
+- **URL** : <http://localhost:8080>
+- **Identifiants** :
+  - Utilisateur : `admin`
+  - Mot de passe : `NouveauMotDePasse2025!`
+
+### Fonctionnalités de l'Interface
+
+- 📊 **Dashboard** : Vue d'ensemble du trading
+- 📈 **Graphiques** : Analyse technique en temps réel
+- 🔄 **Backtesting** : Test des stratégies sur données historiques
+- ⚙️ **Configuration** : Gestion des paramètres
+- 📱 **Notifications** : Alertes et rapports
+
+## Scripts de Gestion
+
+### Scripts Disponibles
+
+- **`start-webserver.sh`** : Démarre FreqTrad avec l'interface web
+- **`restart-server.sh`** : Redémarre le serveur FreqTrad
+- **`secure-config.sh`** : Sécurise la configuration
+- **`quick-install.sh`** : Installation rapide et automatique
+- **`generate-password.sh`** : Génère des mots de passe sécurisés
+
+### Utilisation des Scripts
 
 ```bash
-# Voir les paires disponibles
-freqtrade list-pairs --config config.json --exchange binance
+# Démarrer le serveur
+./start-webserver.sh
 
-# Tester une stratégie
-freqtrade test-pairlist --config config.json --strategy SampleStrategy
-
-# Voir les trades
-freqtrade show-trades --config config.json
-
-# Voir les performances
-freqtrade show-trades --config config.json --show-trades
-
-# Voir les logs en temps réel
-./logs.sh
-```
-
-### Scripts de Gestion
-
-```bash
-# Changer le mot de passe
-./change-password.sh "NouveauMotDePasse"
+# Redémarrer le serveur
+./restart-server.sh
 
 # Sécuriser la configuration
 ./secure-config.sh
 
 # Voir les logs
-./logs.sh
+tail -f user_data/logs/freqtrade.log
 ```
+
+## 📊 Utilisation
+
+### Mode Dry Run (Recommandé pour débuter)
+
+```bash
+# Démarrer en mode simulation
+source venv/bin/activate
+freqtrade trade --config config.json --strategy SampleStrategy
+```
+
+### Backtesting
+
+```bash
+# Tester une stratégie sur des données historiques
+freqtrade backtesting \
+    --config config.json \
+    --strategy SampleStrategy \
+    --timerange 20240901-20240910
+```
+
+### Hyperopt (Optimisation des paramètres)
+
+```bash
+# Optimiser les paramètres d'une stratégie
+freqtrade hyperopt \
+    --config config.json \
+    --strategy SampleStrategy \
+    --hyperopt-loss SharpeHyperOptLoss \
+    --epochs 100
+```
+
+## 🔒 Sécurité
+
+### Configuration Sécurisée
+
+1. **Changer le mot de passe par défaut** :
+
+   ```bash
+   ./generate-password.sh
+   # Puis éditer config.json avec le nouveau mot de passe
+   ```
+
+2. **Sécuriser l'accès API** :
+
+   ```bash
+   ./secure-config.sh
+   ```
+
+3. **Variables d'environnement** :
+   - Ne jamais commiter le fichier `.env`
+   - Utiliser des clés API avec permissions limitées
+   - Changer le JWT secret par défaut
+
+### Accès Restreint
+
+- **Local uniquement** : Changer `listen_ip_address` à `"127.0.0.1"` dans `config.json`
+- **Authentification** : Toujours activée avec nom d'utilisateur et mot de passe
+- **HTTPS** : Recommandé pour la production
 
 ## 📱 Notifications Telegram
 
-Le bot est configuré pour envoyer des notifications sur :
+### Configuration
 
-- **Entrées de position** : Signaux d'achat et exécution
-- **Sorties de position** : Signaux de vente et exécution
-- **Gestion des risques** : Stop-loss et protections
-- **Statut du bot** : Démarrage, arrêt, erreurs
+1. Créer un bot Telegram avec @BotFather
+2. Ajouter le token dans `.env`
+3. Activer Telegram dans `config.json` :
 
-### Commandes Telegram disponibles
+```json
+"telegram": {
+    "enabled": true,
+    "token": "${TELEGRAM_TOKEN}",
+    "chat_id": "${TELEGRAM_CHAT_ID}"
+}
+```
+
+### Commandes Disponibles
 
 - `/daily` - Performance du jour
 - `/profit` - Profits actuels
 - `/balance` - Solde du portefeuille
 - `/trades` - Liste des trades récents
 - `/stats` - Statistiques de trading
-- `/whitelist` - Paires tradées
-- `/blacklist` - Paires bloquées
 - `/status` - Statut du bot
-- `/performance` - Performance détaillée
 
-Voir [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) pour la configuration complète.
+## 🛠️ Développement
 
-## ⚠️ Avertissements
+### Créer une Nouvelle Stratégie
+
+1. Copier `SampleStrategy.py` vers un nouveau fichier
+2. Renommer la classe
+3. Modifier les paramètres selon vos besoins
+4. Tester avec le mode dry run
+
+### Structure du Projet
+
+cypTrade/
+├── config.json # Configuration principale
+├── requirements.txt # Dépendances Python
+├── .env # Variables d'environnement
+├── README.md # Ce fichier
+├── start-webserver.sh # Script de démarrage
+├── restart-server.sh # Script de redémarrage
+├── secure-config.sh # Script de sécurisation
+├── quick-install.sh # Installation rapide
+├── generate-password.sh # Génération de mots de passe
+└── user_data/
+├── logs/ # Logs FreqTrad
+├── data/ # Données historiques
+└── strategies/ # Stratégies de trading
+├── SampleStrategy.py
+├── PowerTowerStrategy.py
+└── ...
+
+## 🚨 Avertissements
 
 - **Toujours tester en mode dry run avant le trading live**
 - **Ne jamais investir plus que ce que vous pouvez perdre**
 - **Les performances passées ne garantissent pas les résultats futurs**
 - **Gardez vos clés API sécurisées**
+- **Surveillez régulièrement les logs pour détecter les erreurs**
 
-## 📚 Documentation
+## �� Documentation
 
 - [Documentation FreqTrad](https://www.freqtrade.io/)
 - [Guide des stratégies](https://www.freqtrade.io/en/latest/strategy-customization/)
 - [Indicateurs techniques](https://www.freqtrade.io/en/latest/strategy-customization/#technical-indicators)
+- [Interface Web FreqUI](https://github.com/freqtrade/freqtrade-ui)
 
 ## 🤝 Contribution
 
@@ -299,6 +290,10 @@ Voir [TELEGRAM_SETUP.md](TELEGRAM_SETUP.md) pour la configuration complète.
 4. Poussez vers la branche
 5. Ouvrez une Pull Request
 
-## 📄 Licence
+## �� Licence
 
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+
+---
+
+**Développé avec ❤️ pour le trading algorithmique**
