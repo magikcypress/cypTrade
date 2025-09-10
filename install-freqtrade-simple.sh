@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Script d'installation FreqTrad avec Python 3.13 - Version Optimisée
-# Redirige tous les téléchargements vers un répertoire dédié
-# Usage: ./install-freqtrade-python313-optimized.sh
+# Script d'installation FreqTrad simple et efficace
+# Usage: ./install-freqtrade-simple.sh
 
 set -e  # Arrêter en cas d'erreur
 
@@ -42,9 +41,8 @@ FREQTRADE_USER="freqtrade"
 FREQTRADE_HOME="/home/$FREQTRADE_USER"
 FREQTRADE_DIR="$FREQTRADE_HOME/cypTrade"
 PYTHON_VERSION="3.13"
-TEMP_DIR="$FREQTRADE_DIR/temp_downloads"
 
-print_message "=== Installation de FreqTrad avec Python 3.13 (Optimisée) ==="
+print_message "=== Installation de FreqTrad Simple ==="
 
 # 1. Vérifier Python 3.13
 if ! command -v python3.13 &> /dev/null; then
@@ -55,26 +53,11 @@ fi
 
 print_success "Python 3.13 trouvé: $(python3.13 --version)"
 
-# 2. Vérifier l'espace disque
-print_message "Vérification de l'espace disque..."
-AVAILABLE_SPACE=$(df $FREQTRADE_HOME | tail -1 | awk '{print $4}')
-REQUIRED_SPACE=5000000  # 5GB en KB
-
-if [ $AVAILABLE_SPACE -lt $REQUIRED_SPACE ]; then
-    print_warning "Espace disque faible ($(($AVAILABLE_SPACE/1024/1024))GB disponible, 5GB recommandé)"
-    print_message "Continuer quand même ? (y/N)"
-    read -r response
-    if [[ ! "$response" =~ ^[Yy]$ ]]; then
-        print_message "Installation annulée"
-        exit 1
-    fi
-fi
-
-# 3. Mise à jour du système
+# 2. Mise à jour du système
 print_message "Mise à jour du système..."
 sudo apt update && sudo apt upgrade -y
 
-# 4. Installation des dépendances de base
+# 3. Installation des dépendances de base
 print_message "Installation des dépendances de base..."
 sudo apt install -y \
     git \
@@ -96,7 +79,7 @@ sudo apt install -y \
     libfribidi-dev \
     libxcb1-dev
 
-# 5. Création de l'utilisateur FreqTrad (si n'existe pas)
+# 4. Création de l'utilisateur FreqTrad (si n'existe pas)
 if ! id "$FREQTRADE_USER" &>/dev/null; then
     print_message "Création de l'utilisateur $FREQTRADE_USER..."
     sudo useradd -m -s /bin/bash $FREQTRADE_USER
@@ -106,12 +89,12 @@ else
     print_warning "L'utilisateur $FREQTRADE_USER existe déjà"
 fi
 
-# 6. Configuration du répertoire de travail
+# 5. Configuration du répertoire de travail
 print_message "Configuration du répertoire de travail..."
 sudo mkdir -p $FREQTRADE_DIR
 sudo chown $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 
-# 7. Cloner ou copier le projet
+# 6. Cloner ou copier le projet
 if [ -d "$FREQTRADE_DIR/.git" ]; then
     print_message "Mise à jour du projet existant..."
     sudo -u $FREQTRADE_USER git -C $FREQTRADE_DIR pull
@@ -121,63 +104,33 @@ else
     sudo chown -R $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 fi
 
-# 8. Création de l'environnement virtuel
+# 7. Création de l'environnement virtuel
 VENV_DIR="$FREQTRADE_DIR/venv"
 print_message "Création de l'environnement virtuel Python $PYTHON_VERSION..."
 sudo -u $FREQTRADE_USER python3.13 -m venv $VENV_DIR
 
-# 9. Création du répertoire temporaire dédié
-print_message "Création du répertoire temporaire dédié: $TEMP_DIR"
-sudo -u $FREQTRADE_USER mkdir -p $TEMP_DIR
-
-# 10. Configuration des variables d'environnement pour pip
-print_message "Configuration des variables d'environnement pip..."
-sudo -u $FREQTRADE_USER tee $FREQTRADE_DIR/pip.conf > /dev/null << EOF
-[global]
-cache-dir = $TEMP_DIR
-no-cache-dir = false
-no-deps = false
-EOF
-
-# 11. Activation et installation des dépendances
-print_message "Installation des dépendances Python..."
-sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install --upgrade pip"
-
-# 12. Installation de FreqTrad avec redirection complète
+# 8. Installation de FreqTrad (méthode simple)
 print_message "Installation de FreqTrad..."
-print_message "Tous les téléchargements sont redirigés vers: $TEMP_DIR"
+print_message "Cette méthode peut utiliser /tmp temporairement, mais c'est normal"
 
-# Variables d'environnement pour contrôler pip
-export PIP_CACHE_DIR="$TEMP_DIR"
-export TMPDIR="$TEMP_DIR"
-export TMP="$TEMP_DIR"
-export TEMP="$TEMP_DIR"
+# Installation directe sans redirection complexe
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install --upgrade pip"
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install 'freqtrade[all]==2025.8'"
 
-# Installation avec redirection du cache et des fichiers temporaires
-sudo -u $FREQTRADE_USER bash -c "
-    source $VENV_DIR/bin/activate && \
-    export PIP_CACHE_DIR='$TEMP_DIR' && \
-    export TMPDIR='$TEMP_DIR' && \
-    export TMP='$TEMP_DIR' && \
-    export TEMP='$TEMP_DIR' && \
-    pip install --cache-dir '$TEMP_DIR' 'freqtrade[all]==2025.8'
-"
-
-# 13. Installation de FreqTrad UI
+# 9. Installation de FreqTrad UI
 print_message "Installation de FreqTrad UI..."
 sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && freqtrade install-ui"
 
-# 14. Nettoyage du répertoire temporaire
-print_message "Nettoyage du répertoire temporaire..."
-sudo -u $FREQTRADE_USER rm -rf $TEMP_DIR
-sudo -u $FREQTRADE_USER rm -f $FREQTRADE_DIR/pip.conf
+# 10. Nettoyage après installation
+print_message "Nettoyage après installation..."
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip cache purge" 2>/dev/null || true
 
-# 15. Configuration des permissions
+# 11. Configuration des permissions
 print_message "Configuration des permissions..."
 sudo chown -R $FREQTRADE_USER:$FREQTRADE_USER $FREQTRADE_DIR
 sudo chmod +x $FREQTRADE_DIR/scripts/*.sh 2>/dev/null || true
 
-# 16. Création du fichier .env
+# 12. Création du fichier .env
 print_message "Création du fichier .env..."
 sudo -u $FREQTRADE_USER tee $FREQTRADE_DIR/.env > /dev/null << EOF
 # Configuration FreqTrad
@@ -194,7 +147,7 @@ API_USERNAME=admin
 API_PASSWORD=$(openssl rand -hex 16)
 EOF
 
-# 17. Création du service systemd
+# 13. Création du service systemd
 print_message "Création du service systemd..."
 sudo tee /etc/systemd/system/freqtrade.service > /dev/null << EOF
 [Unit]
@@ -215,12 +168,12 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-# 18. Rechargement et activation du service
+# 14. Rechargement et activation du service
 print_message "Configuration du service systemd..."
 sudo systemctl daemon-reload
 sudo systemctl enable freqtrade
 
-# 19. Configuration du pare-feu (si disponible)
+# 15. Configuration du pare-feu (si disponible)
 print_message "Configuration du pare-feu..."
 if command -v ufw &> /dev/null; then
     sudo ufw allow 8080/tcp comment "FreqTrad Web Interface" 2>/dev/null || true
@@ -230,7 +183,7 @@ else
     print_warning "UFW non disponible, configurez le pare-feu manuellement"
 fi
 
-# 20. Création des scripts de gestion
+# 16. Création des scripts de gestion
 print_message "Création des scripts de gestion..."
 
 # Script de démarrage
@@ -264,20 +217,7 @@ EOF
 # Rendre les scripts exécutables
 sudo chmod +x $FREQTRADE_DIR/*.sh
 
-# 21. Création du script de mise à jour
-sudo -u $FREQTRADE_USER tee $FREQTRADE_DIR/update.sh > /dev/null << 'EOF'
-#!/bin/bash
-echo "Mise à jour de FreqTrad..."
-git pull
-source venv/bin/activate
-pip install --upgrade freqtrade[all]
-freqtrade install-ui
-echo "Mise à jour terminée. Redémarrez le service avec: sudo systemctl restart freqtrade"
-EOF
-
-sudo chmod +x $FREQTRADE_DIR/update.sh
-
-# 22. Test de l'installation
+# 17. Test de l'installation
 print_message "Test de l'installation..."
 if sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && freqtrade --version"; then
     print_success "FreqTrad installé avec succès"
@@ -286,20 +226,16 @@ else
     exit 1
 fi
 
-# 23. Nettoyage final
+# 18. Nettoyage final
 print_message "Nettoyage final..."
 # Nettoyer le cache pip global
 sudo -u $FREQTRADE_USER pip cache purge 2>/dev/null || true
-
-# Nettoyer les fichiers temporaires
-sudo find /tmp -name "pip-*" -user $FREQTRADE_USER -exec rm -rf {} + 2>/dev/null || true
-sudo find /tmp -name "build-*" -user $FREQTRADE_USER -exec rm -rf {} + 2>/dev/null || true
 
 # Afficher l'espace utilisé
 print_message "Espace utilisé par FreqTrad:"
 du -sh $FREQTRADE_DIR
 
-# 24. Affichage des informations finales
+# 19. Affichage des informations finales
 print_success "=== Installation terminée avec succès ! ==="
 echo
 print_message "Informations importantes:"
@@ -321,7 +257,6 @@ echo "  - ./start.sh    : Démarrer FreqTrad"
 echo "  - ./stop.sh     : Arrêter FreqTrad"
 echo "  - ./restart.sh  : Redémarrer FreqTrad"
 echo "  - ./trade.sh    : Mode trading"
-echo "  - ./update.sh   : Mettre à jour"
 echo
 print_warning "N'oubliez pas de:"
 echo "  1. Configurer vos clés API dans $FREQTRADE_DIR/.env"
