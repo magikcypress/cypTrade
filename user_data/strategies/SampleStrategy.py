@@ -17,7 +17,7 @@ import talib.abstract as ta
 import freqtrade.vendor.qtpylib.indicators as qtpylib
 
 
-class SampleStrategy(IStrategy):
+class SampleStrategy_Fixed(IStrategy):
     """
     This is a sample strategy to inspire you.
     More information in https://www.freqtrade.io/en/latest/strategy-customization/
@@ -58,9 +58,9 @@ class SampleStrategy(IStrategy):
 
     # Trailing stoploss
     trailing_stop = False
-    # trailing_only_offset_is_reached = False
     # trailing_stop_positive = 0.01
-    # trailing_stop_positive_offset = 0.0  # Disabled / not configured
+    # trailing_stop_positive_offset = 0.017
+    # trailing_only_offset_is_reached = False
 
     # Run "populate_indicators()" only for new candle
     process_only_new_candles = False
@@ -128,6 +128,16 @@ class SampleStrategy(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: a Dataframe with all mandatory indicators for the strategies
         """
+        
+        # Vérifier que le DataFrame n'est pas vide
+        if dataframe.empty:
+            return dataframe
+            
+        # Vérifier que les colonnes nécessaires existent
+        required_columns = ['open', 'high', 'low', 'close', 'volume']
+        for col in required_columns:
+            if col not in dataframe.columns:
+                return dataframe
 
         # Momentum Indicators
         # ------------------------------------
@@ -135,65 +145,13 @@ class SampleStrategy(IStrategy):
         # ADX
         dataframe['adx'] = ta.ADX(dataframe)
 
-        # # Plus Directional Indicator / Movement
-        # dataframe['plus_dm'] = ta.PLUS_DM(dataframe)
-        # dataframe['plus_di'] = ta.PLUS_DI(dataframe)
-
-        # # Minus Directional Indicator / Movement
-        # dataframe['minus_dm'] = ta.MINUS_DM(dataframe)
-        # dataframe['minus_di'] = ta.MINUS_DI(dataframe)
-
-        # # Aroon, Aroon Oscillator
-        # aroon = ta.AROON(dataframe)
-        # dataframe['aroonup'] = aroon['aroonup']
-        # dataframe['aroondown'] = aroon['aroondown']
-        # dataframe['aroonosc'] = ta.AROONOSC(dataframe)
-
-        # # Awesome Oscillator
-        # dataframe['ao'] = qtpylib.awesome_oscillator(dataframe)
-
-        # # Keltner Channel
-        # keltner = qtpylib.keltner_channel(dataframe)
-        # dataframe["kc_upperband"] = keltner["upper"]
-        # dataframe["kc_lowerband"] = keltner["lower"]
-        # dataframe["kc_middleband"] = keltner["mid"]
-        # dataframe["kc_percent"] = (
-        #     (dataframe["close"] - dataframe["kc_lowerband"]) /
-        #     (dataframe["kc_upperband"] - dataframe["kc_lowerband"])
-        # )
-        # dataframe["kc_width"] = (
-        #     (dataframe["kc_upperband"] - dataframe["kc_lowerband"]) / dataframe["kc_middleband"]
-        # )
-
-        # # Ultimate Oscillator
-        # dataframe['uo'] = ta.ULTOSC(dataframe)
-
-        # # Commodity Channel Index: values [Oversold:-100, Overbought:100]
-        # dataframe['cci'] = ta.CCI(dataframe)
-
         # RSI
         dataframe['rsi'] = ta.RSI(dataframe)
 
-        # # Inverse Fisher transform on RSI: values [-1.0, 1.0] (https://goo.gl/2JGGoy)
-        # rsi = 0.1 * (dataframe['rsi'] - 50)
-        # dataframe['fisher_rsi'] = (np.exp(2 * rsi) - 1) / (np.exp(2 * rsi) + 1)
-
-        # # Stochastic Slow
-        # stoch = ta.STOCH(dataframe)
-        # dataframe['slowd'] = stoch['slowd']
-        # dataframe['slowk'] = stoch['slowk']
-
         # Stochastic Fast
-        # stochf = ta.STOCHF(dataframe)
-        # dataframe['fastd'] = stochf['fastd']
-        # dataframe['fastk'] = stochf['fastk']
-
-        # # Stochastic RSI
-        # Please read https://github.com/freqtrade/freqtrade/issues/2961 before using this.
-        # STOCHRSI - NOT TALIB compatible
-        # stoch_rsi = qtpylib.stoch_rsi(dataframe)
-        # dataframe['fastd_rsi'] = stoch_rsi['fastd']
-        # dataframe['fastk_rsi'] = stoch_rsi['fastk']
+        stoch_fast = ta.STOCHF(dataframe)
+        dataframe['fastd'] = stoch_fast['fastd']
+        dataframe['fastk'] = stoch_fast['fastk']
 
         # MACD
         macd = ta.MACD(dataframe)
@@ -202,16 +160,10 @@ class SampleStrategy(IStrategy):
         dataframe['macdhist'] = macd['macdhist']
 
         # MFI
-        # dataframe['mfi'] = ta.MFI(dataframe)
-
-        # # ROC
-        # dataframe['roc'] = ta.ROC(dataframe)
-
-        # Overlap Studies
-        # ------------------------------------
+        dataframe['mfi'] = ta.MFI(dataframe)
 
         # Bollinger Bands
-        bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=2)
+        bollinger = qtpylib.bollinger_bands(dataframe['close'], window=20, stds=2)
         dataframe['bb_lowerband'] = bollinger['lower']
         dataframe['bb_middleband'] = bollinger['mid']
         dataframe['bb_upperband'] = bollinger['upper']
@@ -223,40 +175,17 @@ class SampleStrategy(IStrategy):
             (dataframe["bb_upperband"] - dataframe["bb_lowerband"]) / dataframe["bb_middleband"]
         )
 
-        # # Bollinger Bands - Weighted (EMA based instead of SMA)
-        # weighted_bollinger = qtpylib.weighted_bollinger_bands(
-        #     qtpylib.typical_price(dataframe), window=20, stds=2
-        # )
-        # dataframe["wbb_upperband"] = weighted_bollinger["upper"]
-        # dataframe["wbb_lowerband"] = weighted_bollinger["lower"]
-        # dataframe["wbb_middleband"] = weighted_bollinger["mid"]
-        # dataframe["wbb_percent"] = (
-        #     (dataframe["close"] - dataframe["wbb_lowerband"]) /
-        #     (dataframe["wbb_upperband"] - dataframe["wbb_lowerband"])
-        # )
-        # dataframe["wbb_width"] = (
-        #     (dataframe["wbb_upperband"] - dataframe["wbb_lowerband"]) /
-        #     dataframe["wbb_middleband"]
-        # )
+        # EMA - Exponential Moving Average
+        dataframe['ema_12'] = ta.EMA(dataframe, timeperiod=12)
+        dataframe['ema_26'] = ta.EMA(dataframe, timeperiod=26)
 
-        # # EMA - Exponential Moving Average
-        # dataframe['ema3'] = ta.EMA(dataframe, timeperiod=3)
-        # dataframe['ema5'] = ta.EMA(dataframe, timeperiod=5)
-        # dataframe['ema10'] = ta.EMA(dataframe, timeperiod=10)
-        # dataframe['ema21'] = ta.EMA(dataframe, timeperiod=21)
-        # dataframe['ema50'] = ta.EMA(dataframe, timeperiod=50)
-        # dataframe['ema100'] = ta.EMA(dataframe, timeperiod=100)
-
-        # # SMA - Simple Moving Average
-        # dataframe['sma3'] = ta.SMA(dataframe, timeperiod=3)
-        # dataframe['sma5'] = ta.SMA(dataframe, timeperiod=5)
-        # dataframe['sma10'] = ta.SMA(dataframe, timeperiod=10)
-        # dataframe['sma21'] = ta.SMA(dataframe, timeperiod=21)
-        # dataframe['sma50'] = ta.SMA(dataframe, timeperiod=50)
-        # dataframe['sma100'] = ta.SMA(dataframe, timeperiod=100)
+        # SMA - Simple Moving Average
+        dataframe['sma_5'] = ta.SMA(dataframe, timeperiod=5)
+        dataframe['sma_10'] = ta.SMA(dataframe, timeperiod=10)
+        dataframe['sma_20'] = ta.SMA(dataframe, timeperiod=20)
 
         # Parabolic SAR
-        # dataframe['sar'] = ta.SAR(dataframe)
+        dataframe['sar'] = ta.SAR(dataframe)
 
         # TEMA - Triple Exponential Moving Average
         dataframe['tema'] = ta.TEMA(dataframe, timeperiod=9)
@@ -264,54 +193,54 @@ class SampleStrategy(IStrategy):
         # Cycle Indicator
         # ------------------------------------
         # Hilbert Transform Indicator - SineWave
-        # hilbert = ta.HT_SINE(dataframe)
-        # dataframe['htsine'] = hilbert['sine']
-        # dataframe['htleadsine'] = hilbert['leadsine']
+        hilbert = ta.HT_SINE(dataframe)
+        dataframe['htsine'] = hilbert['sine']
+        dataframe['htleadsine'] = hilbert['leadsine']
 
         # Pattern Recognition - Bullish candlestick patterns
         # ------------------------------------
-        # # Hammer: values [0, 100]
-        # dataframe['CDLHAMMER'] = ta.CDLHAMMER(dataframe)
-        # # Inverted Hammer: values [0, 100]
-        # dataframe['CDLINVERTEDHAMMER'] = ta.CDLINVERTEDHAMMER(dataframe)
-        # # Dragonfly Doji: values [0, 100]
-        # dataframe['CDLDRAGONFLYDOJI'] = ta.CDLDRAGONFLYDOJI(dataframe)
-        # # Piercing Line: values [0, 100]
-        # dataframe['CDLPIERCING'] = ta.CDLPIERCING(dataframe) # values [0, 100]
-        # # Morningstar: values [0, 100]
-        # dataframe['CDLMORNINGSTAR'] = ta.CDLMORNINGSTAR(dataframe) # values [0, 100]
-        # # Three White Soldiers: values [0, 100]
-        # dataframe['CDL3WHITESOLDIERS'] = ta.CDL3WHITESOLDIERS(dataframe) # values [0, 100]
+        # Hammer: values [0, 100]
+        dataframe['CDLHAMMER'] = ta.CDLHAMMER(dataframe)
+        # Inverted Hammer: values [0, 100]
+        dataframe['CDLINVERTEDHAMMER'] = ta.CDLINVERTEDHAMMER(dataframe)
+        # Dragonfly Doji: values [0, 100]
+        dataframe['CDLDRAGONFLYDOJI'] = ta.CDLDRAGONFLYDOJI(dataframe)
+        # Piercing Line: values [0, 100]
+        dataframe['CDLPIERCING'] = ta.CDLPIERCING(dataframe) # values [0, 100]
+        # Morningstar: values [0, 100]
+        dataframe['CDLMORNINGSTAR'] = ta.CDLMORNINGSTAR(dataframe) # values [0, 100]
+        # Three White Soldiers: values [0, 100]
+        dataframe['CDL3WHITESOLDIERS'] = ta.CDL3WHITESOLDIERS(dataframe) # values [0, 100]
 
         # Pattern Recognition - Bearish candlestick patterns
         # ------------------------------------
-        # # Hanging Man: values [0, 100]
-        # dataframe['CDLHANGINGMAN'] = ta.CDLHANGINGMAN(dataframe)
-        # # Shooting Star: values [0, 100]
-        # dataframe['CDLSHOOTINGSTAR'] = ta.CDLSHOOTINGSTAR(dataframe)
-        # # Gravestone Doji: values [0, 100]
-        # dataframe['CDLGRAVESTONEDOJI'] = ta.CDLGRAVESTONEDOJI(dataframe)
-        # # Dark Cloud Cover: values [0, 100]
-        # dataframe['CDLDARKCLOUDCOVER'] = ta.CDLDARKCLOUDCOVER(dataframe)
-        # # Evening Doji Star: values [0, 100]
-        # dataframe['CDLEVENINGDOJISTAR'] = ta.CDLEVENINGDOJISTAR(dataframe)
-        # # Evening Star: values [0, 100]
-        # dataframe['CDLEVENINGSTAR'] = ta.CDLEVENINGSTAR(dataframe)
+        # Hanging Man: values [0, 100]
+        dataframe['CDLHANGINGMAN'] = ta.CDLHANGINGMAN(dataframe)
+        # Shooting Star: values [0, 100]
+        dataframe['CDLSHOOTINGSTAR'] = ta.CDLSHOOTINGSTAR(dataframe)
+        # Gravestone Doji: values [0, 100]
+        dataframe['CDLGRAVESTONEDOJI'] = ta.CDLGRAVESTONEDOJI(dataframe)
+        # Dark Cloud Cover: values [0, 100]
+        dataframe['CDLDARKCLOUDCOVER'] = ta.CDLDARKCLOUDCOVER(dataframe)
+        # Evening Doji Star: values [0, 100]
+        dataframe['CDLEVENINGDOJISTAR'] = ta.CDLEVENINGDOJISTAR(dataframe)
+        # Evening Star: values [0, 100]
+        dataframe['CDLEVENINGSTAR'] = ta.CDLEVENINGSTAR(dataframe)
 
         # Pattern Recognition - Bullish/Bearish candlestick patterns
         # ------------------------------------
-        # # Three Line Strike: values [0, -100, 100]
-        # dataframe['CDL3LINESTRIKE'] = ta.CDL3LINESTRIKE(dataframe)
-        # # Spinning Top: values [0, -100, 100]
-        # dataframe['CDLSPINNINGTOP'] = ta.CDLSPINNINGTOP(dataframe) # values [0, -100, 100]
-        # # Engulfing: values [0, -100, 100]
-        # dataframe['CDLENGULFING'] = ta.CDLENGULFING(dataframe) # values [0, -100, 100]
-        # # Harami: values [0, -100, 100]
-        # dataframe['CDLHARAMI'] = ta.CDLHARAMI(dataframe) # values [0, -100, 100]
-        # # Three Outside Up/Down: values [0, -100, 100]
-        # dataframe['CDL3OUTSIDE'] = ta.CDL3OUTSIDE(dataframe) # values [0, -100, 100]
-        # # Three Inside Up/Down: values [0, -100, 100]
-        # dataframe['CDL3INSIDE'] = ta.CDL3INSIDE(dataframe) # values [0, -100, 100]
+        # Three Line Strike: values [0, -100, 100]
+        dataframe['CDL3LINESTRIKE'] = ta.CDL3LINESTRIKE(dataframe)
+        # Spinning Top: values [0, -100, 100]
+        dataframe['CDLSPINNINGTOP'] = ta.CDLSPINNINGTOP(dataframe) # values [0, -100, 100]
+        # Engulfing: values [0, -100, 100]
+        dataframe['CDLENGULFING'] = ta.CDLENGULFING(dataframe) # values [0, -100, 100]
+        # Harami: values [0, -100, 100]
+        dataframe['CDLHARAMI'] = ta.CDLHARAMI(dataframe) # values [0, -100, 100]
+        # Three Outside Up/Down: values [0, -100, 100]
+        dataframe['CDL3OUTSIDE'] = ta.CDL3OUTSIDE(dataframe) # values [0, -100, 100]
+        # Three Inside Up/Down: values [0, -100, 100]
+        dataframe['CDL3INSIDE'] = ta.CDL3INSIDE(dataframe) # values [0, -100, 100]
 
         # # Chart type
         # # ------------------------------------
@@ -322,22 +251,20 @@ class SampleStrategy(IStrategy):
         # dataframe['ha_high'] = heikinashi['high']
         # dataframe['ha_low'] = heikinashi['low']
 
-        # # Retrieve best bid and best ask from the orderbook
-        # # ------------------------------------
-        # """
-        # # first check if dataprovider is available
-        # if self.dp:
-        #     if self.dp.runmode.value in ('live', 'dry_run'):
-        #         ob = self.dp.orderbook(metadata['pair'], 1)
-        #         dataframe['best_bid'] = ob['bids'][0][0]
-        #         dataframe['best_ask'] = ob['asks'][0][0]
-        # """
+        # Retrieve best bid and best ask from the orderbook
+        # ------------------------------------
+        """
+        # first check if dataprovider is available
+        if self.dp:
+            if self.dp.runmode.value in ('live', 'dry_run'):
+                ob = self.dp.orderbook(metadata['pair'], 1)
+                dataframe['best_bid'] = ob['bids'][0][0]
+                dataframe['best_ask'] = ob['asks'][0][0]
+        """
 
-        # # Create a custom indicator
-        # # ------------------------------------
-        # """
-        # dataframe['custom_indicator'] = dataframe['close'] * 2
-        # """
+        # S'assurer que le DataFrame a un index valide
+        if dataframe.index.empty:
+            dataframe = dataframe.reset_index(drop=True)
 
         return dataframe
 
@@ -348,13 +275,25 @@ class SampleStrategy(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: DataFrame with entry columns populated
         """
+        
+        # Vérifier que le DataFrame n'est pas vide
+        if dataframe.empty:
+            return dataframe
+
+        # S'assurer que les colonnes nécessaires existent
+        required_columns = ['rsi', 'bb_percent', 'macd', 'macdsignal']
+        for col in required_columns:
+            if col not in dataframe.columns:
+                return dataframe
+
         dataframe.loc[
             (
                 # Signal: RSI crosses above 30
                 (qtpylib.crossed_above(dataframe['rsi'], 30)) &
-                (dataframe['rsi'] > 0) &  # Guard
-                (dataframe['close'] < dataframe['bb_lowerband']) &
-                (dataframe['volume'] > 0)  # Make sure Volume is not 0
+                (dataframe['rsi'] > 0) &  # Guard: RSI is not null
+                (dataframe['rsi'] < 70) &  # Guard: RSI < 70
+                (dataframe['close'] < dataframe['bb_lowerband']) &  # Guard: close < BB lower
+                (dataframe['volume'] > 0)  # Guard: volume is not null
             ),
             'enter_long'] = 1
 
@@ -367,30 +306,26 @@ class SampleStrategy(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: DataFrame with exit columns populated
         """
+        
+        # Vérifier que le DataFrame n'est pas vide
+        if dataframe.empty:
+            return dataframe
+
+        # S'assurer que les colonnes nécessaires existent
+        required_columns = ['rsi', 'bb_percent', 'macd', 'macdsignal']
+        for col in required_columns:
+            if col not in dataframe.columns:
+                return dataframe
+
         dataframe.loc[
             (
                 # Signal: RSI crosses above 70
                 (qtpylib.crossed_above(dataframe['rsi'], 70)) &
-                (dataframe['rsi'] > 0) &  # Guard
-                (dataframe['close'] > dataframe['bb_upperband']) &
-                (dataframe['volume'] > 0)  # Make sure Volume is not 0
+                (dataframe['rsi'] > 0) &  # Guard: RSI is not null
+                (dataframe['rsi'] > 30) &  # Guard: RSI > 30
+                (dataframe['close'] > dataframe['bb_upperband']) &  # Guard: close > BB upper
+                (dataframe['volume'] > 0)  # Guard: volume is not null
             ),
             'exit_long'] = 1
 
         return dataframe
-
-    def leverage(self, pair: str, current_time: datetime, current_rate: float,
-                 proposed_leverage: float, max_leverage: float, entry_tag: Optional[str], side: str,
-                 **kwargs) -> float:
-        """
-        Customize leverage for each new trade. This method is only called in futures mode.
-        :param pair: Pair that's currently analyzed
-        :param current_time: datetime object, containing the current datetime
-        :param current_rate: Rate, calculated based on pricing settings in exit_pricing.
-        :param proposed_leverage: A leverage proposed by the bot.
-        :param max_leverage: Max leverage allowed on this pair
-        :param entry_tag: Entry tag (if any)
-        :param side: 'long' or 'short' - indicating the direction of the proposed trade
-        :return: A leverage amount (1.0 equals no leverage)
-        """
-        return 1.0
