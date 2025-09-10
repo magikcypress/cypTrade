@@ -114,18 +114,17 @@
     },
     "api_server": {
         "enabled": true,
-        "listen_ip_address": "0.0.0.0",
+        "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "error",
         "enable_openapi": false,
-        "jwt_secret": "test_jwt_secret",
+        "jwt_secret": "5227369ee17380e896173543350cce5510ffdc95b8f6cb0fec773539822c0a93",
         "CORS_origins": [
             "http://localhost:8080",
-            "http://0.0.0.0:8080",
             "http://127.0.0.1:8080"
         ],
         "username": "admin",
-        "password": "admin"
+        "password": "NouveauMotDePasse2025!"
     },
     "bot_name": "cypTrade",
     "initial_state": "running",
