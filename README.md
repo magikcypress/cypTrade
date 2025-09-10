@@ -9,7 +9,29 @@ Ce projet configure FreqTrad pour le trading algorithmique avec des stratégies 
 - Python 3.8 ou supérieur
 - pip (gestionnaire de paquets Python)
 
-### Installation des dépendances
+### Installation Automatique (Recommandé)
+
+#### Pour Debian/Ubuntu avec Python 3.13
+
+```bash
+# Rendre le script exécutable
+chmod +x install-freqtrade-python313-optimized.sh
+
+# Exécuter l'installation complète
+./install-freqtrade-python313-optimized.sh
+```
+
+Ce script automatise :
+
+- Installation de Python 3.13
+- Installation des dépendances système
+- Création de l'utilisateur FreqTrad
+- Configuration de l'environnement virtuel
+- Installation de FreqTrad et de l'interface web
+- Configuration du service systemd
+- Configuration du pare-feu
+
+#### Installation Manuelle
 
 ```bash
 # Cloner le projet (si nécessaire)
@@ -94,11 +116,21 @@ freqtrade hyperopt --config config.json --strategy SampleStrategy --hyperopt-los
 
 ### Interface Web
 
+#### Installation Automatique
+
+L'interface web est automatiquement installée et configurée avec le script d'installation.
+
+#### Installation Manuelle
+
 ```bash
 freqtrade trade --config config.json --strategy SampleStrategy --api-server
 ```
 
-Puis ouvrez <http://localhost:8080> dans votre navigateur.
+#### Accès à l'Interface
+
+- **URL** : <http://127.0.0.1:8080> (accès local sécurisé)
+- **Identifiants** : `admin` / `NouveauMotDePasse2025!` (par défaut)
+- **Changer le mot de passe** : `./change-password.sh "VotreMotDePasse"`
 
 ### Bot Telegram
 
@@ -113,18 +145,43 @@ Configurez votre bot Telegram pour recevoir des notifications de trading. Voir [
 ```
 cypTrade/
 ├── config.json                 # Configuration principale
+├── config-test.json           # Configuration de test
 ├── freqtrade_hyperopt.json    # Configuration hyperopt
 ├── requirements.txt            # Dépendances Python
-├── env.example                 # Variables d'environnement (exemple)
-├── TELEGRAM_SETUP.md          # Guide configuration Telegram
+├── .env                        # Variables d'environnement
 ├── README.md                   # Ce fichier
+├── INSTALLATION.md             # Guide d'installation détaillé
+├── DEPLOYMENT.md               # Guide de déploiement
 ├── docker-compose.yml          # Configuration Docker
-├── scripts/
-│   └── install.sh             # Script d'installation
+├── install-freqtrade-python313-optimized.sh  # Script d'installation Debian
+├── install-freqtrade-simple.sh               # Script d'installation simple
+├── change-password.sh          # Script de changement de mot de passe
+├── secure-config.sh            # Script de sécurisation
+├── logs.sh                     # Script de visualisation des logs
 └── user_data/
     └── strategies/
-        └── SampleStrategy.py   # Stratégie d'exemple
+        ├── SampleStrategy.py   # Stratégie d'exemple
+        └── PowerTowerStrategy.py # Stratégie avancée
 ```
+
+## 🛠️ Scripts de Gestion
+
+### Scripts d'Installation
+
+- **`install-freqtrade-python313-optimized.sh`** : Installation complète pour Debian/Ubuntu avec Python 3.13
+- **`install-freqtrade-simple.sh`** : Installation simple et rapide
+- **`check-python.sh`** : Vérification de la compatibilité Python
+
+### Scripts de Configuration
+
+- **`change-password.sh`** : Changement du mot de passe FreqTrad
+- **`secure-config.sh`** : Sécurisation de la configuration
+- **`logs.sh`** : Visualisation des logs en temps réel
+
+### Scripts de Déploiement
+
+- **`deploy.sh`** : Déploiement Docker
+- **`deploy-to-server.sh`** : Déploiement sur serveur distant
 
 ## 🎯 Stratégies
 
@@ -147,28 +204,55 @@ Stratégie d'exemple basée sur :
 
 ## 🔧 Commandes Utiles
 
-### Voir les paires disponibles
+### Gestion du Service (après installation automatique)
 
 ```bash
+# Démarrer FreqTrad
+sudo systemctl start freqtrade
+
+# Arrêter FreqTrad
+sudo systemctl stop freqtrade
+
+# Redémarrer FreqTrad
+sudo systemctl restart freqtrade
+
+# Voir le statut
+sudo systemctl status freqtrade
+
+# Voir les logs
+sudo journalctl -u freqtrade -f
+```
+
+### Commandes FreqTrad
+
+```bash
+# Voir les paires disponibles
 freqtrade list-pairs --config config.json --exchange binance
-```
 
-### Tester une stratégie
-
-```bash
+# Tester une stratégie
 freqtrade test-pairlist --config config.json --strategy SampleStrategy
-```
 
-### Voir les trades
-
-```bash
+# Voir les trades
 freqtrade show-trades --config config.json
+
+# Voir les performances
+freqtrade show-trades --config config.json --show-trades
+
+# Voir les logs en temps réel
+./logs.sh
 ```
 
-### Voir les performances
+### Scripts de Gestion
 
 ```bash
-freqtrade show-trades --config config.json --show-trades
+# Changer le mot de passe
+./change-password.sh "NouveauMotDePasse"
+
+# Sécuriser la configuration
+./secure-config.sh
+
+# Voir les logs
+./logs.sh
 ```
 
 ## 📱 Notifications Telegram

@@ -19,7 +19,7 @@
 ssh root@YOUR_SERVER_IP
 
 # Cloner le projet
-git clone https://github.com/votre-username/cypTrade.git
+git clone https://github.com/magikcypress/cypTrade.git
 cd cypTrade
 
 # Configurer les variables d'environnement
