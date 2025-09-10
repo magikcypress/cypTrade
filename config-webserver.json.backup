@@ -45,8 +45,10 @@
             "BNB/USDC",
             "ADA/USDC",
             "SOL/USDC",
+            "XRP/USDC",
             "DOT/USDC",
-            "LINK/USDC",
+            "DOGE/USDC",
+            "AVAX/USDC",
             "MATIC/USDC"
         ],
         "pair_blacklist": [
@@ -68,7 +70,7 @@
         "stoploss_range_max": -0.1,
         "stoploss_range_step": -0.01,
         "minimum_winrate": 0.60,
-        "minimum_expectancy": 0.20,
+        "minimum_profit": 0.01,
         "min_trade_number": 10,
         "max_trade_duration_minute": 1440,
         "remove_pumps": false
@@ -140,5 +142,6 @@
     "internals": {
         "process_throttle_secs": 5
     },
-    "candle_type_def": "spot"
+    "candle_type_def": "spot",
+    "strategy": "SampleStrategy"
 }
