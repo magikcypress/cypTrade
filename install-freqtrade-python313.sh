@@ -115,7 +115,15 @@ sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install --
 
 # 9. Installation de FreqTrad avec gestion des dépendances
 print_message "Installation de FreqTrad..."
-sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install 'freqtrade[all]==2025.8'"
+print_message "Nettoyage du cache pip avant installation..."
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip cache purge" 2>/dev/null || true
+
+# Installation avec nettoyage automatique
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip install --no-cache-dir 'freqtrade[all]==2025.8'"
+
+# Nettoyage après installation
+print_message "Nettoyage du cache pip après installation..."
+sudo -u $FREQTRADE_USER bash -c "source $VENV_DIR/bin/activate && pip cache purge" 2>/dev/null || true
 
 # 10. Installation de FreqTrad UI
 print_message "Installation de FreqTrad UI..."
@@ -234,6 +242,19 @@ else
     print_error "Erreur lors de l'installation de FreqTrad"
     exit 1
 fi
+
+# 19. Nettoyage final
+print_message "Nettoyage final..."
+# Nettoyer le cache pip global
+sudo -u $FREQTRADE_USER pip cache purge 2>/dev/null || true
+
+# Nettoyer les fichiers temporaires
+sudo find /tmp -name "pip-*" -user $FREQTRADE_USER -exec rm -rf {} + 2>/dev/null || true
+sudo find /tmp -name "build-*" -user $FREQTRADE_USER -exec rm -rf {} + 2>/dev/null || true
+
+# Afficher l'espace utilisé
+print_message "Espace utilisé par FreqTrad:"
+du -sh $FREQTRADE_DIR
 
 # 19. Affichage des informations finales
 print_success "=== Installation terminée avec succès ! ==="
