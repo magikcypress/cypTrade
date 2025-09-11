@@ -147,22 +147,36 @@ class BalancedAdvancedStrategy(IStrategy):
 
         # Ajout des données informatives
         for timeframe in self.informative_timeframes:
-            informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=timeframe)
-            
-            # RSI sur timeframe supérieur
-            informative[f'rsi_{timeframe}'] = ta.RSI(informative, timeperiod=14)
-            
-            # Moyennes mobiles sur timeframe supérieur
-            informative[f'ema_fast_{timeframe}'] = ta.EMA(informative, timeperiod=8)
-            informative[f'ema_slow_{timeframe}'] = ta.EMA(informative, timeperiod=21)
-            
-            # Tendance sur timeframe supérieur
-            informative[f'trend_{timeframe}'] = np.where(
-                informative[f'ema_fast_{timeframe}'] > informative[f'ema_slow_{timeframe}'], 1, -1
-            )
-            
-            # Merge des données informatives
-            dataframe = merge_informative_pair(dataframe, informative, self.timeframe, timeframe, ffill=True)
+            try:
+                informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=timeframe)
+                
+                if informative is not None and len(informative) > 0:
+                    # RSI sur timeframe supérieur
+                    informative[f'rsi_{timeframe}'] = ta.RSI(informative, timeperiod=14)
+                    
+                    # Moyennes mobiles sur timeframe supérieur
+                    informative[f'ema_fast_{timeframe}'] = ta.EMA(informative, timeperiod=8)
+                    informative[f'ema_slow_{timeframe}'] = ta.EMA(informative, timeperiod=21)
+                    
+                    # Tendance sur timeframe supérieur
+                    informative[f'trend_{timeframe}'] = np.where(
+                        informative[f'ema_fast_{timeframe}'] > informative[f'ema_slow_{timeframe}'], 1, -1
+                    )
+                    
+                    # Merge des données informatives
+                    dataframe = merge_informative_pair(dataframe, informative, self.timeframe, timeframe, ffill=True)
+                else:
+                    # Créer des colonnes par défaut si les données ne sont pas disponibles
+                    dataframe[f'rsi_{timeframe}'] = 50  # Valeur neutre
+                    dataframe[f'ema_fast_{timeframe}'] = dataframe['close']
+                    dataframe[f'ema_slow_{timeframe}'] = dataframe['close']
+                    dataframe[f'trend_{timeframe}'] = 0  # Valeur neutre
+            except Exception as e:
+                # En cas d'erreur, créer des colonnes par défaut
+                dataframe[f'rsi_{timeframe}'] = 50  # Valeur neutre
+                dataframe[f'ema_fast_{timeframe}'] = dataframe['close']
+                dataframe[f'ema_slow_{timeframe}'] = dataframe['close']
+                dataframe[f'trend_{timeframe}'] = 0  # Valeur neutre
 
         return dataframe
 
@@ -212,13 +226,13 @@ class BalancedAdvancedStrategy(IStrategy):
                 # Prix au-dessus du support
                 (dataframe['close'] > dataframe['support']) &
                 
-                # Tendance sur timeframe supérieur positive
-                (dataframe['trend_1h'] > 0) &
-                (dataframe['trend_4h'] > 0) &
+                # Tendance sur timeframe supérieur positive (avec vérification de sécurité)
+                (dataframe.get('trend_1h', 0) > 0) &
+                (dataframe.get('trend_4h', 0) > 0) &
                 
-                # RSI sur timeframe supérieur pas en survente extrême
-                (dataframe['rsi_1h'] > 30) &
-                (dataframe['rsi_4h'] > 30) &
+                # RSI sur timeframe supérieur pas en survente extrême (avec vérification de sécurité)
+                (dataframe.get('rsi_1h', 50) > 30) &
+                (dataframe.get('rsi_4h', 50) > 30) &
                 
                 # Volatilité acceptable
                 (dataframe['volatility'] < 0.05) &
@@ -274,11 +288,11 @@ class BalancedAdvancedStrategy(IStrategy):
                 # CCI en survente
                 (dataframe['cci'] > 100) |
                 
-                # Tendance sur timeframe supérieur négative
-                (dataframe['trend_1h'] < 0) |
+                # Tendance sur timeframe supérieur négative (avec vérification de sécurité)
+                (dataframe.get('trend_1h', 0) < 0) |
                 
-                # RSI sur timeframe supérieur en survente
-                (dataframe['rsi_1h'] > 70) |
+                # RSI sur timeframe supérieur en survente (avec vérification de sécurité)
+                (dataframe.get('rsi_1h', 50) > 70) |
                 
                 # Volatilité élevée
                 (dataframe['volatility'] > 0.08) |
