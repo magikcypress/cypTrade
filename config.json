@@ -75,7 +75,7 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": false,
+        "enabled": true,
         "token": "${TELEGRAM_TOKEN}",
         "chat_id": "${TELEGRAM_CHAT_ID}",
         "balance_dust_level": 0.01,
