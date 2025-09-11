@@ -143,15 +143,33 @@ create_config() {
     # Copier la configuration de base
     cp config.json "$config_file"
     
-    # Modifier selon le mode
+    # Modifier selon le mode (compatible macOS et Linux)
     if [ "$mode" = "live" ]; then
         # Mode live
-        sed -i '' 's/"dry_run": true/"dry_run": false/' "$config_file"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            sed -i '' 's/"dry_run": true/"dry_run": false/' "$config_file"
+        else
+            # Linux
+            sed -i 's/"dry_run": true/"dry_run": false/' "$config_file"
+        fi
         print_warning "Mode LIVE activé - Trading réel!"
     else
         # Mode dry-run
-        sed -i '' 's/"dry_run": false/"dry_run": true/' "$config_file"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            sed -i '' 's/"dry_run": false/"dry_run": true/' "$config_file"
+        else
+            # Linux
+            sed -i 's/"dry_run": false/"dry_run": true/' "$config_file"
+        fi
         print_message "Mode DRY-RUN activé - Simulation uniquement"
+    fi
+    
+    # Vérifier que le fichier a été créé
+    if [ ! -f "$config_file" ]; then
+        print_error "Erreur lors de la création du fichier de configuration"
+        exit 1
     fi
     
     echo "$config_file"
