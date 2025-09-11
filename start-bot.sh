@@ -17,23 +17,23 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 print_message() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1" >&2
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${NC} $1" >&2
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[WARNING]${NC} $1" >&2
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
 print_header() {
-    echo -e "${PURPLE}=== FreqTrad Bot Starter ===${NC}"
+    echo -e "${PURPLE}=== FreqTrad Bot Starter ===${NC}" >&2
 }
 
 # Fonction pour afficher l'aide
@@ -172,6 +172,7 @@ create_config() {
         exit 1
     fi
     
+    # Retourner le nom du fichier (sans messages de debug)
     echo "$config_file"
 }
 
@@ -248,13 +249,6 @@ main() {
         print_error "Stratégie '$selected_strategy' non trouvée"
         print_message "Stratégies disponibles:"
         list_strategies | sed 's/^/  - /'
-        exit 1
-    fi
-    
-    # Vérifier le mode si fourni
-    if [ -n "$selected_mode" ] && [ "$selected_mode" != "dry-run" ] && [ "$selected_mode" != "live" ]; then
-        print_error "Mode invalide: '$selected_mode'"
-        print_message "Modes disponibles: dry-run, live"
         exit 1
     fi
     
