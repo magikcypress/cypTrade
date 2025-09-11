@@ -12,7 +12,7 @@ from freqtrade.strategy import (BooleanParameter, CategoricalParameter, DecimalP
 import freqtrade.vendor.qtpylib.indicators as qtpylib
 
 
-class PowerTowerStrategy_Fixed(IStrategy):
+class PowerTowerStrategy(IStrategy):
     """
     Stratégie PowerTower corrigée - Stratégie de trading basée sur les tours de puissance
     """
