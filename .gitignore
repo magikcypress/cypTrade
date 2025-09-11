@@ -136,6 +136,9 @@ user_data/backtest_results/
 user_data/hyperopt_results/
 tradesv3.sqlite
 tradesv3.sqlite-journal
+tradesv3.dryrun.sqlite
+tradesv3.dryrun.sqlite-shm
+tradesv3.dryrun.sqlite-wal
 *.db
 *.db-journal
 

@@ -11,7 +11,7 @@
     "cancel_open_orders_on_exit": false,
     "trading_mode": "spot",
     "margin_mode": "",
-    "verbosity": 1,
+    "verbosity": 0,
     "logfile": "user_data/logs/freqtrade.log",
     "unfilledtimeout": {
         "entry": 10,
@@ -75,7 +75,7 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
+        "enabled": false,
         "token": "${TELEGRAM_TOKEN}",
         "chat_id": "${TELEGRAM_CHAT_ID}",
         "balance_dust_level": 0.01,

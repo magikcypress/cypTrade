@@ -34,19 +34,19 @@ pkill -f freqtrade
 sleep 2
 
 # 2. Vérifier la configuration
-if [ ! -f "config-webserver.json" ]; then
-    print_error "Fichier config-webserver.json non trouvé"
+if [ ! -f "config.json" ]; then
+    print_error "Fichier config.json non trouvé"
     exit 1
 fi
 
 # 3. Démarrer FreqTrad en mode webserver avec stratégie
 print_message "Démarrage de FreqTrad..."
-print_message "Mode: webserver avec stratégie SampleStrategy"
-print_message "Configuration: config-webserver.json"
+print_message "Mode: webserver avec stratégie BalancedAdvancedStrategy"
+print_message "Configuration: config.json"
 print_message "Accès: http://0.0.0.0:8080"
 
 # Démarrer en arrière-plan
-source venv/bin/activate && freqtrade trade --config config-webserver.json --strategy SampleStrategy &
+source venv/bin/activate && freqtrade trade --config config.json --strategy BalancedAdvancedStrategy &
 FREQTRADE_PID=$!
 
 # Attendre que FreqTrad démarre
