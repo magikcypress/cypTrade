@@ -60,8 +60,10 @@ class BalancedAdvancedStrategy(IStrategy):
     # Paramètres de gestion des risques
     use_stop_loss = BooleanParameter(default=True, space="protection")
     use_trailing_stop = BooleanParameter(default=True, space="protection")
-    trailing_stop_positive = DecimalParameter(0.01, 0.05, default=0.02, space="protection")
-    trailing_stop_positive_offset = DecimalParameter(0.02, 0.08, default=0.04, space="protection")
+    
+    # Paramètres de trailing stop (utiliser des attributs de classe pour éviter les problèmes de validation)
+    trailing_stop_positive_value = 0.02
+    trailing_stop_positive_offset_value = 0.04
 
     def informative_pairs(self):
         """
@@ -297,15 +299,24 @@ class BalancedAdvancedStrategy(IStrategy):
         """
         Stop loss personnalisé avec trailing stop
         """
-        if not self.use_stop_loss.value:
+        # Vérifier si les paramètres sont initialisés
+        try:
+            use_stop_loss = self.use_stop_loss.value
+            use_trailing_stop = self.use_trailing_stop.value
+        except (AttributeError, TypeError):
+            # Utiliser les valeurs par défaut si les paramètres ne sont pas initialisés
+            use_stop_loss = True
+            use_trailing_stop = True
+
+        if not use_stop_loss:
             return self.stoploss
 
         # Stop loss de base
         stop_loss = self.stoploss
 
         # Trailing stop si activé
-        if self.use_trailing_stop.value and current_profit > self.trailing_stop_positive.value:
-            stop_loss = -self.trailing_stop_positive_offset.value
+        if use_trailing_stop and current_profit > self.trailing_stop_positive_value:
+            stop_loss = -self.trailing_stop_positive_offset_value
 
         return stop_loss
 
