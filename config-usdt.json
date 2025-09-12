@@ -136,11 +136,11 @@
         "CORS_origins": [
             "http://localhost:8080",
             "http://127.0.0.1:8080",
-            "http://rouquin.site:8080",
-            "https://rouquin.site:8080"
+            "http://${DOMAINE_NAME}:8080",
+            "https://${DOMAINE_NAME}:8080"
         ],
-        "username": "admin",
-        "password": "NouveauMotDePasse2025!"
+        "username": "${API_USERNAME}",
+        "password": "${API_PASSWORD}"
     },
     "bot_name": "cypTrade-USDT",
     "initial_state": "running",

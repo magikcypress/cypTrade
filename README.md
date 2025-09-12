@@ -35,10 +35,10 @@ cp .env.example .env
 
 ```bash
 # Rendre le script exécutable
-chmod +x quick-install.sh
+chmod +x start-bot.sh
 
-# Exécuter l'installation
-./quick-install.sh
+# Démarrer le bot
+./start-bot.sh
 ```
 
 ## ⚠️ IMPORTANT - Ordre d'Installation
@@ -102,7 +102,7 @@ Le fichier `config.json` est pré-configuré avec :
 ./run-hyperopt.sh
 
 # Hyperopt complet (500 epochs)
-./run-full-hyperopt.sh
+./run-hyperopt.sh --epochs 500
 
 # Voir les résultats
 ./show-hyperopt-results.sh
@@ -111,29 +111,11 @@ Le fichier `config.json` est pré-configuré avec :
 ./apply-best-params.sh
 ```
 
-### 2. PowerTowerStrategy
+### 2. Autres Stratégies
 
-Stratégie avancée avec :
-
-- Indicateurs multiples
-- Gestion des risques améliorée
-- Support des timeframes informatifs
-- Vérifications de sécurité robustes
-
-### 3. MultiMAStrategy
-
-Stratégie multi-timeframe utilisant :
-
-- Moyennes mobiles exponentielles sur plusieurs timeframes
-- Analyse de tendance sur 1h, 4h, 1d
-- Gestion des risques adaptative
-
-### 4. Autres Stratégies
-
-- **SampleStrategy** : Stratégie d'exemple basique
-- **BalancedAdvancedStrategy** : Stratégie équilibrée avec indicateurs avancés
-- **BandtasticStrategy** : Basée sur les bandes de Bollinger (corrigée)
-- **SimpleTestStrategy** : Stratégie de test simple
+- **HyperoptSimple** : Stratégie simplifiée pour hyperopt
+- **HyperoptStrategy** : Stratégie de base pour hyperopt
+- **PowerTowerStrategy** : Stratégie alternative avec indicateurs multiples
 
 ## 🚀 Optimisation des Stratégies
 
@@ -143,7 +125,6 @@ Stratégie multi-timeframe utilisant :
 |--------|----------|--------|-------|-------|
 | `test-hyperopt.sh` | Test rapide | 10 | ~2 min | Validation |
 | `run-hyperopt.sh` | Optimisation standard | 100 | ~20 min | Optimisation |
-| `run-full-hyperopt.sh` | Optimisation complète | 500 | ~2h | Optimisation avancée |
 | `show-hyperopt-results.sh` | Affichage des résultats | - | - | Analyse |
 | `apply-best-params.sh` | Application des paramètres | - | - | Déploiement |
 
@@ -163,15 +144,37 @@ Stratégie multi-timeframe utilisant :
 ./apply-best-params.sh
 ```
 
-### Exemple de commande
+#### Exemple de commande
 
 ```bash
-freqtrade hyperopt --hyperopt-loss MultiMetricHyperOptLoss \
+freqtrade hyperopt \
+  --config config.json \
+  --hyperopt-loss MultiMetricHyperOptLoss \
   --strategy HyperoptWorking \
   --timerange 20240101-20241201 \
   -e 500 \
   --spaces buy sell roi \
   --min-trades 50
+```
+
+ou
+
+```bash
+freqtrade hyperopt \ 
+  --config config.json \
+  --hyperopt-loss MultiMetricHyperOptLoss \
+  --strategy HyperoptWorking   \
+  -e 100  \
+  --spaces buy sel roi
+```
+
+### Exemple de backtest
+
+```bash
+freqtrade backtesting \
+  --config config.json \
+  --strategy HyperoptWorking \
+  --timeframe 5m
 ```
 
 ## 🖥️ Interface Web
@@ -313,6 +316,14 @@ freqtrade install-ui
 - **`show-hyperopt-results.sh`** : Affiche les résultats d'optimisation
 - **`apply-best-params.sh`** : Applique les meilleurs paramètres trouvés
 
+#### Scripts de Backtesting
+
+- **`test-backtest.sh`** : Test rapide de backtesting (10 jours)
+- **`run-backtest.sh`** : Backtesting standard (1 mois)
+- **`run-full-backtest.sh`** : Backtesting complet (8 mois)
+- **`compare-strategies.sh`** : Compare toutes les stratégies
+- **`download-data.sh`** : Télécharge les données historiques
+
 #### Scripts de Diagnostic
 
 - **`diagnose-trading.sh`** : Diagnostic complet du système de trading
@@ -358,6 +369,27 @@ freqtrade trade --config config.json --strategy SampleStrategy
 ```
 
 ### Backtesting
+
+#### Utilisation des Scripts (Recommandé)
+
+```bash
+# Test rapide (10 jours)
+./test-backtest.sh
+
+# Backtesting standard (1 mois)
+./run-backtest.sh
+
+# Backtesting complet (8 mois)
+./run-full-backtest.sh
+
+# Comparer toutes les stratégies
+./compare-strategies.sh
+
+# Télécharger des données
+./download-data.sh
+```
+
+#### Utilisation Manuelle
 
 ```bash
 # Tester une stratégie sur des données historiques
@@ -480,6 +512,11 @@ cypTrade/
 ├── run-full-hyperopt.sh # Hyperopt complet
 ├── show-hyperopt-results.sh # Affichage des résultats
 ├── apply-best-params.sh # Application des paramètres
+├── test-backtest.sh # Test backtesting rapide
+├── run-backtest.sh # Backtesting standard
+├── run-full-backtest.sh # Backtesting complet
+├── compare-strategies.sh # Comparaison des stratégies
+├── download-data.sh # Téléchargement de données
 ├── diagnose-trading.sh # Diagnostic du système
 ├── monitor-trades.sh # Surveillance des trades
 ├── install-hyperopt-server.sh # Installation serveur
@@ -487,6 +524,7 @@ cypTrade/
     ├── logs/ # Logs FreqTrad
     ├── data/ # Données historiques
     ├── hyperopt_results/ # Résultats d'optimisation
+    ├── backtest_results/ # Résultats de backtesting
     └── strategies/ # Stratégies de trading
         ├── HyperoptWorking.py # ⭐ Stratégie principale
         ├── PowerTowerStrategy.py
