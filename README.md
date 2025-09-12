@@ -458,12 +458,11 @@ freqtrade backtesting \
 
 # Analyse des résultats
 ./analyze-backtest-results.sh latest
-./analyze-hyperopt-results.sh latest
 ```
 
 ## 📊 Analyse des Résultats
 
-### Scripts d'Analyse de Backtest
+### Script d'Analyse de Backtest
 
 Le script `analyze-backtest-results.sh` analyse les résultats de backtest FreqTrad :
 
@@ -479,9 +478,6 @@ Le script `analyze-backtest-results.sh` analyse les résultats de backtest FreqT
 
 # Comparer plusieurs résultats
 ./analyze-backtest-results.sh compare fichier1.json fichier2.json
-
-# Démonstration complète
-./demo-analyze-backtest.sh
 ```
 
 **Fonctionnalités :**
@@ -491,40 +487,9 @@ Le script `analyze-backtest-results.sh` analyse les résultats de backtest FreqT
 - 🔍 **Recommandations** : Suggestions d'amélioration
 - 📋 **Comparaison** : Comparaison entre différents backtests
 
-### Scripts d'Analyse d'Hyperopt
+### Prérequis pour le Script d'Analyse
 
-Le script `analyze-hyperopt-results.sh` analyse les résultats d'hyperoptimisation :
-
-```bash
-# Lister tous les fichiers d'hyperopt
-./analyze-hyperopt-results.sh list
-
-# Analyser le dernier résultat
-./analyze-hyperopt-results.sh latest
-
-# Analyser un fichier spécifique
-./analyze-hyperopt-results.sh user_data/hyperopt_results/strategy_HyperoptWorking_2025-01-15.fthypt
-
-# Comparer plusieurs résultats
-./analyze-hyperopt-results.sh compare fichier1.fthypt fichier2.fthypt
-
-# Extraire les meilleurs paramètres
-./analyze-hyperopt-results.sh extract fichier.fthypt
-
-# Démonstration complète
-./demo-analyze-hyperopt.sh
-```
-
-**Fonctionnalités :**
-
-- 🏆 **Meilleure époque** : Analyse de la configuration optimale
-- ⚙️ **Paramètres optimisés** : Extraction des meilleurs paramètres
-- 📈 **Évolution** : Progression des performances au fil des époques
-- 🔄 **Comparaison** : Comparaison entre différentes optimisations
-
-### Prérequis pour les Scripts d'Analyse
-
-Les scripts d'analyse nécessitent les outils suivants :
+Le script d'analyse nécessite l'outil suivant :
 
 ```bash
 # Installer jq (processeur JSON)
@@ -541,7 +506,6 @@ sudo yum install jq
 **Formats supportés :**
 
 - **Backtest** : `.json`, `.zip` (archives FreqTrad)
-- **Hyperopt** : `.json`, `.fthypt` (format FreqTrad hyperopt)
 
 ## 📊 Utilisation
 
@@ -672,7 +636,9 @@ cypTrade/
 │   ├── config-simple.json            # Configuration de base multi-strégies
 │   ├── config-multi-exchange.json    # Configuration multi-exchange Binance
 │   ├── config-hyperliquid-multi.json # Configuration multi-exchange Hyperliquid
-│   ├── .env.example                  # Variables d'environnement (template)
+│   ├── config-*.json                 # Configurations temporaires générées
+│   ├── .env                          # Variables d'environnement
+│   ├── .env.backup                   # Backup des variables d'environnement
 │   └── requirements.txt              # Dépendances Python
 │
 ├── 📖 DOCUMENTATION
@@ -697,10 +663,7 @@ cypTrade/
 │   ├── apply-best-params.sh          # Appliquer meilleurs paramètres
 │   ├── test-backtest.sh              # Backtest rapide
 │   ├── run-backtest.sh               # Backtest standard
-│   ├── analyze-backtest-results.sh   # Analyse des résultats de backtest
-│   ├── analyze-hyperopt-results.sh   # Analyse des résultats d'hyperopt
-│   ├── demo-analyze-backtest.sh      # Démonstration analyse backtest
-│   └── demo-analyze-hyperopt.sh      # Démonstration analyse hyperopt
+│   └── analyze-backtest-results.sh   # Analyse des résultats de backtest
 │
 └── user_data/
     ├── strategies/                    # Stratégies de trading
@@ -834,7 +797,7 @@ freqtrade --config config.json --strategy PowerTowerStrategy --dry-run
 - **Optimisez régulièrement vos stratégies avec l'hyperopt**
 - **Les stratégies actuelles ne sont pas rentables - testez avant utilisation**
 - **Utilisez `apply-best-params.sh` pour appliquer les paramètres optimisés**
-- **Analysez vos résultats avec `analyze-backtest-results.sh` et `analyze-hyperopt-results.sh`**
+- **Analysez vos résultats avec `analyze-backtest-results.sh`**
 - **Installez `jq` pour utiliser les scripts d'analyse**
 
 ## �� Documentation
