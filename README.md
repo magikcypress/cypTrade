@@ -663,53 +663,62 @@ freqtrade backtesting \
 
 ### Structure du Projet
 
+```
 cypTrade/
+│
 ├── 📚 CONFIGURATIONS
-├── config.json                 # Configuration principale (USDT)
-├── config-usdt.json           # Configuration USDT étendue
-├── config-simple.json         # Configuration de base multi-strégies
-├── config-multi-exchange.json # Configuration multi-exchange Binance
-├── config-hyperliquid-multi.json # Configuration multi-exchange Hyperliquid
-├── .env.example               # Variables d'environnement (template)
-├── requirements.txt           # Dépendances Python
-├── README.md                  # Documentation du projet
+│   ├── config.json                    # Configuration principale (USDT)
+│   ├── config-usdt.json              # Configuration USDT étendue
+│   ├── config-simple.json            # Configuration de base multi-strégies
+│   ├── config-multi-exchange.json    # Configuration multi-exchange Binance
+│   ├── config-hyperliquid-multi.json # Configuration multi-exchange Hyperliquid
+│   ├── .env.example                  # Variables d'environnement (template)
+│   └── requirements.txt              # Dépendances Python
+│
+├── 📖 DOCUMENTATION
+│   ├── README.md                     # Documentation principale
+│   └── GUIDE-MULTI-STRATEGIES.md    # Guide complet multi-strégies
+│
 ├── 🚀 SCRIPTS MULTI-STRÉGIES (NOUVEAU)
-├── manage-strategies.sh       # Gestionnaire complet multi-strégies
-├── start-multiple-strategies.sh # Démarrage de stratégies spécifiques
-├── start-multi-exchange.sh    # Multi-exchange (Binance + Hyperliquid)
-├── start-multi-config.sh      # Multi-configuration
-├── test-multi-strategies.sh   # Test des scripts multi-strégies
-├── test-strategies-comparison.sh # Comparaison de stratégies
-├── GUIDE-MULTI-STRATEGIES.md  # Guide complet multi-strégies
+│   ├── manage-strategies.sh          # Gestionnaire complet multi-strégies
+│   ├── start-multiple-strategies.sh  # Démarrage de stratégies spécifiques
+│   ├── start-multi-exchange.sh       # Multi-exchange (Binance + Hyperliquid)
+│   ├── start-multi-config.sh         # Multi-configuration
+│   ├── test-multi-strategies.sh      # Test des scripts multi-strégies
+│   └── test-strategies-comparison.sh # Comparaison de stratégies
+│
 ├── 🔧 SCRIPTS CLASSIQUES
-├── start-bot.sh              # Démarrer le bot
-├── stop-bot.sh               # Arrêter le bot
-├── diagnose-trading.sh       # Diagnostic des trades
-├── run-hyperopt.sh           # Hyperoptimisation
-├── test-hyperopt.sh          # Test hyperopt rapide
-├── show-hyperopt-results.sh  # Afficher résultats
-├── apply-best-params.sh      # Appliquer meilleurs paramètres
-├── test-backtest.sh          # Backtest rapide
-├── run-backtest.sh           # Backtest standard
-├── analyze-backtest-results.sh    # Analyse des résultats de backtest
-├── analyze-hyperopt-results.sh    # Analyse des résultats d'hyperopt
-├── demo-analyze-backtest.sh       # Démonstration analyse backtest
-├── demo-analyze-hyperopt.sh       # Démonstration analyse hyperopt
+│   ├── start-bot.sh                  # Démarrer le bot
+│   ├── stop-bot.sh                   # Arrêter le bot
+│   ├── diagnose-trading.sh           # Diagnostic des trades
+│   ├── run-hyperopt.sh               # Hyperoptimisation
+│   ├── test-hyperopt.sh              # Test hyperopt rapide
+│   ├── show-hyperopt-results.sh      # Afficher résultats
+│   ├── apply-best-params.sh          # Appliquer meilleurs paramètres
+│   ├── test-backtest.sh              # Backtest rapide
+│   ├── run-backtest.sh               # Backtest standard
+│   ├── analyze-backtest-results.sh   # Analyse des résultats de backtest
+│   ├── analyze-hyperopt-results.sh   # Analyse des résultats d'hyperopt
+│   ├── demo-analyze-backtest.sh      # Démonstration analyse backtest
+│   └── demo-analyze-hyperopt.sh      # Démonstration analyse hyperopt
+│
 └── user_data/
-    ├── strategies/           # Stratégies de trading
-    │   ├── HyperoptWorking.py    # ⭐ Stratégie principale (recommandée)
-    │   ├── HyperoptWorking.json  # Paramètres optimisés
+    ├── strategies/                    # Stratégies de trading
+    │   ├── HyperoptWorking.py        # ⭐ Stratégie principale (recommandée)
+    │   ├── HyperoptWorking.json      # Paramètres optimisés
     │   ├── TrendFollowingStrategy.py # Stratégie de suivi de tendance
     │   ├── MeanReversionStrategy.py  # Stratégie de retour à la moyenne
     │   ├── MultiExchangeStrategy.py  # Stratégie multi-exchange
-    │   ├── HyperoptOptimized.py  # Stratégie optimisée
-    │   ├── HyperoptSimple.py     # Stratégie simple
-    │   ├── HyperoptStrategy.py   # Stratégie de base
-    │   └── PowerTowerStrategy.py # Stratégie alternative
-    ├── data/                 # Données historiques
-    │   └── binance/          # Données Binance (USDT/USDC)
-    ├── backtest_results/     # Résultats backtest
-    └── hyperopt_results/     # Résultats hyperopt
+    │   ├── HyperoptOptimized.py      # Stratégie optimisée
+    │   ├── HyperoptSimple.py         # Stratégie simple
+    │   ├── HyperoptStrategy.py       # Stratégie de base
+    │   └── PowerTowerStrategy.py     # Stratégie alternative
+    ├── data/                         # Données historiques
+    │   └── binance/                  # Données Binance (USDT/USDC)
+    ├── backtest_results/             # Résultats backtest
+    ├── hyperopt_results/             # Résultats hyperopt
+    └── logs/                         # Logs des stratégies
+```
 
 ## 🔧 Dépannage
 
