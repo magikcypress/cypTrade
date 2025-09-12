@@ -111,6 +111,12 @@ class MultiMAStrategy(IStrategy):
         # Ajout des données informatives
         for timeframe in self.informative_timeframes:
             informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe=timeframe)
+            
+            # Vérifier que les données informatives ne sont pas vides
+            if informative.empty:
+                print(f"Warning: No data for {metadata['pair']} on {timeframe}")
+                continue
+                
             informative[f'ema_fast_{timeframe}'] = ta.EMA(informative, timeperiod=8)
             informative[f'ema_slow_{timeframe}'] = ta.EMA(informative, timeperiod=21)
             informative[f'sma_long_{timeframe}'] = ta.SMA(informative, timeperiod=50)
@@ -123,6 +129,16 @@ class MultiMAStrategy(IStrategy):
         return dataframe
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        # Vérifier que les colonnes nécessaires existent
+        required_columns = ['trend_1h', 'trend_4h', 'trend_1d', 'rsi_1h', 'rsi_4h', 'ema_fast_1h', 'ema_slow_1h', 'ema_fast_4h', 'ema_slow_4h']
+        missing_columns = [col for col in required_columns if col not in dataframe.columns]
+        
+        if missing_columns:
+            print(f"Warning: Missing columns {missing_columns} for {metadata['pair']}")
+            # Créer des colonnes par défaut pour éviter les erreurs
+            for col in missing_columns:
+                dataframe[col] = 0
+        
         dataframe.loc[
             (
                 # Alignement des moyennes mobiles (tendance haussière)
@@ -160,7 +176,7 @@ class MultiMAStrategy(IStrategy):
                 # Prix au-dessus du support
                 (dataframe['close'] > dataframe['support']) &
                 
-                # Confirmation sur timeframes supérieurs
+                # Confirmation sur timeframes supérieurs (avec vérification)
                 (dataframe['trend_1h'] > 0) &
                 (dataframe['trend_4h'] > 0) &
                 (dataframe['trend_1d'] > 0) &
@@ -181,6 +197,16 @@ class MultiMAStrategy(IStrategy):
         return dataframe
 
     def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        # Vérifier que les colonnes nécessaires existent
+        required_columns = ['trend_1h', 'rsi_1h', 'ema_fast_1h', 'ema_slow_1h']
+        missing_columns = [col for col in required_columns if col not in dataframe.columns]
+        
+        if missing_columns:
+            print(f"Warning: Missing columns {missing_columns} for {metadata['pair']}")
+            # Créer des colonnes par défaut pour éviter les erreurs
+            for col in missing_columns:
+                dataframe[col] = 0
+        
         dataframe.loc[
             (
                 # Désalignement des moyennes mobiles
@@ -211,7 +237,7 @@ class MultiMAStrategy(IStrategy):
                 # ADX faiblit
                 (dataframe['adx'] < 15) |
                 
-                # Tendance sur timeframe supérieur négative
+                # Tendance sur timeframe supérieur négative (avec vérification)
                 (dataframe['trend_1h'] < 0) |
                 
                 # RSI sur timeframe supérieur en survente

@@ -1,0 +1,40 @@
+{
+  "strategy_name": "HyperoptWorking",
+  "params": {
+    "roi": {
+      "0": 0.03,
+      "20": 0.02,
+      "40": 0.01,
+      "80": 0.005
+    },
+    "stoploss": {
+      "stoploss": -0.04
+    },
+    "trailing": {
+      "trailing_stop": false,
+      "trailing_stop_positive": null,
+      "trailing_stop_positive_offset": 0.0,
+      "trailing_only_offset_is_reached": false
+    },
+    "max_open_trades": {
+      "max_open_trades": 1
+    },
+    "buy": {
+      "buy_ema_fast": 12,
+      "buy_ema_slow": 24,
+      "buy_rsi_high": 70,
+      "buy_rsi_low": 31,
+      "buy_rsi_period": 12,
+      "buy_volume_factor": 1.97
+    },
+    "sell": {
+      "sell_ema_cross": false,
+      "sell_rsi_high": 84
+    },
+    "protection": {
+      "use_stop_loss": true
+    }
+  },
+  "ft_stratparam_v": 1,
+  "export_time": "2025-09-11 18:25:23.666231+00:00"
+}

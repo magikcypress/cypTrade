@@ -1,6 +1,6 @@
 {
     "max_open_trades": 3,
-    "stake_currency": "USDT",
+    "stake_currency": "USDC",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
     "fiat_display_currency": "USD",
@@ -38,8 +38,6 @@
         "name": "binance",
         "key": "${BINANCE_API_KEY}",
         "secret": "${BINANCE_SECRET}",
-        "slippage_percentage": 0.5,
-        "slippage_type": "percentage",
         "ccxt_config": {
             "rateLimit": 100,
             "timeout": 30000,
@@ -47,14 +45,14 @@
         },
         "ccxt_async_config": {},
         "pair_whitelist": [
-            "BTC/USDT",
-            "ETH/USDT",
-            "BNB/USDT",
-            "ADA/USDT",
-            "SOL/USDT",
-            "DOT/USDT",
-            "LINK/USDT",
-            "MATIC/USDT"
+            "BTC/USDC",
+            "ETH/USDC",
+            "BNB/USDC",
+            "ADA/USDC",
+            "SOL/USDC",
+            "DOT/USDC",
+            "LINK/USDC",
+            "MATIC/USDC"
         ],
         "pair_blacklist": [
             "BNB/BTC",

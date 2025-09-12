@@ -1,5 +1,5 @@
 {
-    "max_open_trades": 3,
+    "max_open_trades": 1,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
@@ -12,7 +12,7 @@
     "trading_mode": "spot",
     "margin_mode": "",
     "verbosity": 0,
-    "logfile": "user_data/logs/freqtrade.log",
+    "logfile": "user_data/logs/freqtrade-usdt.log",
     "unfilledtimeout": {
         "entry": 10,
         "exit": 10,
@@ -38,8 +38,6 @@
         "name": "binance",
         "key": "${BINANCE_API_KEY}",
         "secret": "${BINANCE_SECRET}",
-        "slippage_percentage": 0.5,
-        "slippage_type": "percentage",
         "ccxt_config": {
             "rateLimit": 100,
             "timeout": 30000,
@@ -54,7 +52,9 @@
             "SOL/USDT",
             "DOT/USDT",
             "LINK/USDT",
-            "MATIC/USDT"
+            "MATIC/USDT",
+            "XRP/USDT",
+            "AVAX/USDT"
         ],
         "pair_blacklist": [
             "BNB/BTC",
@@ -142,7 +142,7 @@
         "username": "admin",
         "password": "NouveauMotDePasse2025!"
     },
-    "bot_name": "cypTrade",
+    "bot_name": "cypTrade-USDT",
     "initial_state": "running",
     "force_entry_enable": false,
     "process_only_new_candles": true,

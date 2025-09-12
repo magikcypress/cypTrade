@@ -82,15 +82,34 @@ Le fichier `config.json` est pré-configuré avec :
 
 ## 🎯 Stratégies Disponibles
 
-### 1. SampleStrategy
+### 1. HyperoptWorking ⭐ (Recommandée)
 
-Stratégie d'exemple basée sur :
+**Stratégie optimisée pour l'hyperopt** - La plus performante du projet :
 
-- RSI (Relative Strength Index)
-- Bollinger Bands
-- MACD
-- Conditions d'entrée : RSI < 30 et prix sous la bande inférieure de Bollinger
-- Conditions de sortie : RSI > 70 et prix au-dessus de la bande supérieure de Bollinger
+- **Paramètres optimisables** : RSI, EMA, Volume, MACD
+- **Hyperopt intégré** : Optimisation automatique des paramètres
+- **Performance** : 175 trades en 60 jours, Win Rate 31.4%
+- **Génère des trades** : Contrairement aux autres stratégies simples
+- **Facile à utiliser** : Scripts d'optimisation prêts à l'emploi
+
+**Utilisation :**
+
+```bash
+# Test rapide (10 epochs)
+./test-hyperopt.sh
+
+# Hyperopt standard (100 epochs)
+./run-hyperopt.sh
+
+# Hyperopt complet (500 epochs)
+./run-full-hyperopt.sh
+
+# Voir les résultats
+./show-hyperopt-results.sh
+
+# Appliquer les meilleurs paramètres
+./apply-best-params.sh
+```
 
 ### 2. PowerTowerStrategy
 
@@ -101,12 +120,59 @@ Stratégie avancée avec :
 - Support des timeframes informatifs
 - Vérifications de sécurité robustes
 
-### 3. Autres Stratégies
+### 3. MultiMAStrategy
 
+Stratégie multi-timeframe utilisant :
+
+- Moyennes mobiles exponentielles sur plusieurs timeframes
+- Analyse de tendance sur 1h, 4h, 1d
+- Gestion des risques adaptative
+
+### 4. Autres Stratégies
+
+- **SampleStrategy** : Stratégie d'exemple basique
 - **BalancedAdvancedStrategy** : Stratégie équilibrée avec indicateurs avancés
-- **BandtasticStrategy** : Basée sur les bandes de Bollinger
-- **MultiMAStrategy** : Utilise plusieurs moyennes mobiles
+- **BandtasticStrategy** : Basée sur les bandes de Bollinger (corrigée)
 - **SimpleTestStrategy** : Stratégie de test simple
+
+## 🚀 Optimisation des Stratégies
+
+### Scripts d'Hyperopt
+
+| Script | Fonction | Epochs | Durée | Usage |
+|--------|----------|--------|-------|-------|
+| `test-hyperopt.sh` | Test rapide | 10 | ~2 min | Validation |
+| `run-hyperopt.sh` | Optimisation standard | 100 | ~20 min | Optimisation |
+| `run-full-hyperopt.sh` | Optimisation complète | 500 | ~2h | Optimisation avancée |
+| `show-hyperopt-results.sh` | Affichage des résultats | - | - | Analyse |
+| `apply-best-params.sh` | Application des paramètres | - | - | Déploiement |
+
+### Exemple d'Optimisation
+
+```bash
+# 1. Test rapide
+./test-hyperopt.sh
+
+# 2. Voir les résultats
+./show-hyperopt-results.sh
+
+# 3. Optimisation complète
+./run-full-hyperopt.sh
+
+# 4. Appliquer les meilleurs paramètres
+./apply-best-params.sh
+```
+
+### Exemple de commande
+
+```bash
+freqtrade hyperopt --hyperopt-loss MultiMetricHyperOptLoss \
+  --strategy HyperoptWorking \
+  --timerange 20240101-20241201 \
+  -e 500 \
+  --spaces buy sell roi \
+  --min-trades 50
+```
 
 ## 🖥️ Interface Web
 
@@ -232,13 +298,32 @@ freqtrade install-ui
 
 ### Scripts Disponibles
 
+#### Scripts de Trading
+
 - **`start-bot.sh`** : Démarre FreqTrad avec choix de stratégie et mode
 - **`stop-bot.sh`** : Arrête FreqTrad proprement
 - **`start-webserver.sh`** : Démarre FreqTrad avec l'interface web
 - **`restart-server.sh`** : Redémarre le serveur FreqTrad
+
+#### Scripts d'Optimisation
+
+- **`test-hyperopt.sh`** : Test rapide de l'hyperopt (10 epochs)
+- **`run-hyperopt.sh`** : Hyperopt standard (100 epochs)
+- **`run-full-hyperopt.sh`** : Hyperopt complet (500 epochs)
+- **`show-hyperopt-results.sh`** : Affiche les résultats d'optimisation
+- **`apply-best-params.sh`** : Applique les meilleurs paramètres trouvés
+
+#### Scripts de Diagnostic
+
+- **`diagnose-trading.sh`** : Diagnostic complet du système de trading
+- **`monitor-trades.sh`** : Surveillance des trades en temps réel
+
+#### Scripts de Configuration
+
 - **`secure-config.sh`** : Sécurise la configuration
 - **`quick-install.sh`** : Installation rapide et automatique
 - **`generate-password.sh`** : Génère des mots de passe sécurisés
+- **`install-hyperopt-server.sh`** : Installation sur serveur Debian
 
 ### Utilisation des Scripts
 
@@ -284,13 +369,35 @@ freqtrade backtesting \
 
 ### Hyperopt (Optimisation des paramètres)
 
+#### Utilisation des Scripts (Recommandé)
+
+```bash
+# Test rapide (10 epochs)
+./test-hyperopt.sh
+
+# Optimisation standard (100 epochs)
+./run-hyperopt.sh
+
+# Optimisation complète (500 epochs)
+./run-full-hyperopt.sh
+
+# Voir les résultats
+./show-hyperopt-results.sh
+
+# Appliquer les meilleurs paramètres
+./apply-best-params.sh
+```
+
+#### Utilisation Manuelle
+
 ```bash
 # Optimiser les paramètres d'une stratégie
 freqtrade hyperopt \
-    --config config.json \
-    --strategy SampleStrategy \
+    --config config-usdt.json \
+    --strategy HyperoptWorking \
     --hyperopt-loss SharpeHyperOptLoss \
-    --epochs 100
+    --epochs 100 \
+    --spaces buy sell protection
 ```
 
 ## 🔒 Sécurité
@@ -358,7 +465,8 @@ freqtrade hyperopt \
 ### Structure du Projet
 
 cypTrade/
-├── config.json # Configuration principale
+├── config.json # Configuration principale (USDC)
+├── config-usdt.json # Configuration USDT
 ├── requirements.txt # Dépendances Python
 ├── .env # Variables d'environnement
 ├── README.md # Ce fichier
@@ -367,13 +475,24 @@ cypTrade/
 ├── secure-config.sh # Script de sécurisation
 ├── quick-install.sh # Installation rapide
 ├── generate-password.sh # Génération de mots de passe
+├── test-hyperopt.sh # Test hyperopt rapide
+├── run-hyperopt.sh # Hyperopt standard
+├── run-full-hyperopt.sh # Hyperopt complet
+├── show-hyperopt-results.sh # Affichage des résultats
+├── apply-best-params.sh # Application des paramètres
+├── diagnose-trading.sh # Diagnostic du système
+├── monitor-trades.sh # Surveillance des trades
+├── install-hyperopt-server.sh # Installation serveur
 └── user_data/
-├── logs/ # Logs FreqTrad
-├── data/ # Données historiques
-└── strategies/ # Stratégies de trading
-├── SampleStrategy.py
-├── PowerTowerStrategy.py
-└── ...
+    ├── logs/ # Logs FreqTrad
+    ├── data/ # Données historiques
+    ├── hyperopt_results/ # Résultats d'optimisation
+    └── strategies/ # Stratégies de trading
+        ├── HyperoptWorking.py # ⭐ Stratégie principale
+        ├── PowerTowerStrategy.py
+        ├── MultiMAStrategy.py
+        ├── SampleStrategy.py
+        └── ...
 
 ## 🔧 Dépannage
 
@@ -424,6 +543,8 @@ freqtrade --config config.json --strategy PowerTowerStrategy --dry-run
 - **Gardez vos clés API sécurisées**
 - **Surveillez régulièrement les logs pour détecter les erreurs**
 - **Installez TOUJOURS l'interface web avant d'utiliser les scripts de trading**
+- **Utilisez HyperoptWorking pour de meilleures performances**
+- **Optimisez régulièrement vos stratégies avec l'hyperopt**
 
 ## �� Documentation
 

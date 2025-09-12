@@ -27,6 +27,7 @@ print_error() {
 }
 
 print_message "=== Démarrage de FreqTrad en Mode Web avec Stratégie ==="
+print_message "Ce script va automatiquement télécharger les données si nécessaire"
 
 # 1. Arrêter FreqTrad s'il fonctionne
 print_message "Arrêt de FreqTrad..."
@@ -39,7 +40,22 @@ if [ ! -f "config.json" ]; then
     exit 1
 fi
 
-# 3. Démarrer FreqTrad en mode webserver avec stratégie
+# 3. Télécharger les données si nécessaire
+print_message "Vérification des données..."
+if [ ! -d "user_data/data/binance" ] || [ -z "$(find user_data/data/binance -name "*.json" 2>/dev/null | head -1)" ]; then
+    print_warning "Données manquantes, téléchargement en cours..."
+    source venv/bin/activate
+    
+    # Télécharger les données USDT (plus anciennes mais complètes)
+    print_message "Téléchargement des données USDT..."
+    freqtrade download-data --config config.json --timerange 20240101-20250131
+    
+    print_success "Données téléchargées avec succès"
+else
+    print_success "Données existantes trouvées"
+fi
+
+# 4. Démarrer FreqTrad en mode webserver avec stratégie
 print_message "Démarrage de FreqTrad..."
 print_message "Mode: webserver avec stratégie BalancedAdvancedStrategy"
 print_message "Configuration: config.json"
