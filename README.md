@@ -687,16 +687,6 @@ cypTrade/
 
 ### 🎯 Problèmes Multi-Strégies
 
-#### Erreur "declare: -A: invalid option"
-
-```bash
-# Problème : Associative arrays non supportés sur macOS
-# Solution : Le script a été corrigé pour utiliser des fonctions
-
-# Vérifier que les scripts fonctionnent
-./test-multi-strategies.sh
-```
-
 #### Conflits de ports
 
 ```bash
