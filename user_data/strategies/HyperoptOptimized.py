@@ -1,96 +1,3 @@
-#!/bin/bash
-
-# Script pour appliquer les meilleurs paramètres trouvés par l'hyperopt
-
-# Couleurs
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-print_message() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_header() {
-    echo -e "\n${BLUE}=== $1 ===${NC}"
-}
-
-# Vérifier que l'environnement virtuel existe
-if [ ! -d "venv" ]; then
-    print_error "Environnement virtuel 'venv' non trouvé."
-    exit 1
-fi
-
-# Activer l'environnement virtuel
-source venv/bin/activate
-
-print_header "APPLICATION DES MEILLEURS PARAMÈTRES"
-
-# Vérifier si des résultats d'hyperopt existent
-if [ ! -d "user_data/hyperopt_results" ]; then
-    print_warning "Aucun résultat d'hyperopt trouvé."
-    print_message "Lancez d'abord: ./test-hyperopt.sh ou ./run-hyperopt.sh"
-    exit 1
-fi
-
-# Afficher les meilleurs résultats
-print_message "Meilleurs résultats trouvés:"
-freqtrade hyperopt-show --best
-
-echo ""
-
-# Demander confirmation
-read -p "Voulez-vous appliquer ces paramètres à la stratégie ? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    print_message "Annulé."
-    exit 0
-fi
-
-# Créer une copie de la stratégie avec les meilleurs paramètres
-print_message "Création de la stratégie optimisée..."
-
-# Récupérer les meilleurs paramètres
-print_message "Récupération des meilleurs paramètres..."
-
-# Utiliser les paramètres par défaut optimisés (plus simple et plus fiable)
-BUY_EMA_FAST=13
-BUY_EMA_SLOW=32
-BUY_RSI_HIGH=60
-BUY_RSI_LOW=21
-BUY_RSI_PERIOD=15
-BUY_VOLUME_FACTOR=1.967
-SELL_EMA_CROSS=True
-SELL_RSI_HIGH=83
-USE_STOP_LOSS=False
-
-print_message "Paramètres optimisés trouvés:"
-echo "  - buy_ema_fast: $BUY_EMA_FAST"
-echo "  - buy_ema_slow: $BUY_EMA_SLOW"
-echo "  - buy_rsi_high: $BUY_RSI_HIGH"
-echo "  - buy_rsi_low: $BUY_RSI_LOW"
-echo "  - buy_rsi_period: $BUY_RSI_PERIOD"
-echo "  - buy_volume_factor: $BUY_VOLUME_FACTOR"
-echo "  - sell_ema_cross: $SELL_EMA_CROSS"
-echo "  - sell_rsi_high: $SELL_RSI_HIGH"
-echo "  - use_stop_loss: $USE_STOP_LOSS"
-
-# Créer la stratégie optimisée
-cat > user_data/strategies/HyperoptOptimized.py << EOF
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -141,21 +48,21 @@ class HyperoptOptimized(IStrategy):
     trailing_stop = False
 
     # Paramètres optimisés par hyperopt
-    buy_rsi_period = $BUY_RSI_PERIOD
-    buy_rsi_low = $BUY_RSI_LOW
-    buy_rsi_high = $BUY_RSI_HIGH
+    buy_rsi_period = 15
+    buy_rsi_low = 21
+    buy_rsi_high = 60
     
-    buy_ema_fast = $BUY_EMA_FAST
-    buy_ema_slow = $BUY_EMA_SLOW
+    buy_ema_fast = 13
+    buy_ema_slow = 32
     
-    buy_volume_factor = $BUY_VOLUME_FACTOR
+    buy_volume_factor = 1.967
     
     # Paramètres de vente optimisés
-    sell_rsi_high = $SELL_RSI_HIGH
-    sell_ema_cross = $SELL_EMA_CROSS
+    sell_rsi_high = 83
+    sell_ema_cross = True
     
     # Paramètres de protection
-    use_stop_loss = $USE_STOP_LOSS
+    use_stop_loss = False
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -243,13 +150,3 @@ class HyperoptOptimized(IStrategy):
             return self.stoploss
             
         return self.stoploss
-EOF
-
-print_success "Stratégie optimisée créée: HyperoptOptimized.py"
-
-# Tester la stratégie optimisée
-print_message "Test de la stratégie optimisée..."
-freqtrade backtesting --config config-usdt.json --strategy HyperoptOptimized --timerange 20241201-20250131 --max-open-trades 1 --dry-run-wallet 1000 | tail -20
-
-print_success "Stratégie optimisée prête à utiliser !"
-print_message "Utilisez: ./start-bot.sh HyperoptOptimized"

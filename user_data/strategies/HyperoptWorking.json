@@ -17,24 +17,24 @@
       "trailing_only_offset_is_reached": false
     },
     "max_open_trades": {
-      "max_open_trades": 3
+      "max_open_trades": 1
     },
     "buy": {
-      "buy_ema_fast": 9,
-      "buy_ema_slow": 27,
+      "buy_ema_fast": 13,
+      "buy_ema_slow": 32,
       "buy_rsi_high": 60,
-      "buy_rsi_low": 38,
-      "buy_rsi_period": 10,
-      "buy_volume_factor": 1.506
+      "buy_rsi_low": 21,
+      "buy_rsi_period": 15,
+      "buy_volume_factor": 1.967
     },
     "sell": {
       "sell_ema_cross": true,
-      "sell_rsi_high": 72
+      "sell_rsi_high": 83
     },
     "protection": {
-      "use_stop_loss": true
+      "use_stop_loss": false
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2025-09-12 07:13:40.729900+00:00"
+  "export_time": "2025-09-12 15:49:25.822819+00:00"
 }

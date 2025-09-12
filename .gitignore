@@ -157,3 +157,5 @@ tradesv3.dryrun.sqlite-wal
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+freqtrade_hyperliquid_download-data

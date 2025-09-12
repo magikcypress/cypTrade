@@ -56,16 +56,29 @@ chmod +x start-bot.sh
 Créez un fichier `.env` avec vos clés API :
 
 ```env
-# Binance API
-BINANCE_API_KEY=your_api_key_here
-BINANCE_SECRET=your_secret_here
+# FreqTrad Configuration
+# Copy this file to .env and fill in your actual values
 
-# JWT Secret pour l'API
+# Exchange API Keys
+BINANCE_API_KEY=your_exchange_api_key_here
+BINANCE_SECRET=your_exchange_secret_here
+
+# Telegram Bot Configuration
+TELEGRAM_TOKEN=your_telegram_bot_token_here
+TELEGRAM_CHAT_ID=your_telegram_chat_id_here
+
+# API Server Configuration (optional)
+API_USERNAME=your_api_username_here
+API_PASSWORD=your_api_password_here
 JWT_SECRET=your_jwt_secret_here
 
-# Telegram Bot (optionnel)
-TELEGRAM_TOKEN=your_telegram_token
-TELEGRAM_CHAT_ID=your_chat_id
+# Database
+DATABASE_URL=sqlite:///tradesv3.sqlite
+
+# Other settings
+DRY_RUN=true
+
+DOMAINE_NAME=example.com
 ```
 
 ### 2. Configuration Principale
@@ -73,12 +86,20 @@ TELEGRAM_CHAT_ID=your_chat_id
 Le fichier `config.json` est pré-configuré avec :
 
 - **Échange** : Binance
-- **Devise de base** : USDC
+- **Devise de base** : USDT
 - **Mode** : Dry Run (simulation)
 - **Timeframe** : 5 minutes
-- **Paires** : BTC/USDC, ETH/USDC, BNB/USDC, ADA/USDC, SOL/USDC, DOT/USDC, LINK/USDC, MATIC/USDC
+- **Paires** : BTC/USDT, ETH/USDT, BNB/USDT, ADA/USDT, SOL/USDT, DOT/USDT, LINK/USDT, MATIC/USDT
 - **API Server** : Activé sur le port 8080
 - **Interface Web** : FreqUI intégrée
+
+Le fichier `config-usdt.json` contient une configuration étendue avec plus de paires USDT.
+
+## Download data
+
+```bash
+freqtrade download-data --exchange binance --config config.json --timerange 20180101-20250131 --timeframe 1m 5m 1d 4h 1h
+```
 
 ## 🎯 Stratégies Disponibles
 
@@ -111,39 +132,6 @@ Le fichier `config.json` est pré-configuré avec :
 ./apply-best-params.sh
 ```
 
-### 2. Autres Stratégies
-
-- **HyperoptSimple** : Stratégie simplifiée pour hyperopt
-- **HyperoptStrategy** : Stratégie de base pour hyperopt
-- **PowerTowerStrategy** : Stratégie alternative avec indicateurs multiples
-
-## 🚀 Optimisation des Stratégies
-
-### Scripts d'Hyperopt
-
-| Script | Fonction | Epochs | Durée | Usage |
-|--------|----------|--------|-------|-------|
-| `test-hyperopt.sh` | Test rapide | 10 | ~2 min | Validation |
-| `run-hyperopt.sh` | Optimisation standard | 100 | ~20 min | Optimisation |
-| `show-hyperopt-results.sh` | Affichage des résultats | - | - | Analyse |
-| `apply-best-params.sh` | Application des paramètres | - | - | Déploiement |
-
-### Exemple d'Optimisation
-
-```bash
-# 1. Test rapide
-./test-hyperopt.sh
-
-# 2. Voir les résultats
-./show-hyperopt-results.sh
-
-# 3. Optimisation complète
-./run-full-hyperopt.sh
-
-# 4. Appliquer les meilleurs paramètres
-./apply-best-params.sh
-```
-
 #### Exemple de commande
 
 ```bash
@@ -166,15 +154,6 @@ freqtrade hyperopt \
   --strategy HyperoptWorking   \
   -e 100  \
   --spaces buy sel roi
-```
-
-### Exemple de backtest
-
-```bash
-freqtrade backtesting \
-  --config config.json \
-  --strategy HyperoptWorking \
-  --timeframe 5m
 ```
 
 ## 🖥️ Interface Web
@@ -305,14 +284,12 @@ freqtrade install-ui
 
 - **`start-bot.sh`** : Démarre FreqTrad avec choix de stratégie et mode
 - **`stop-bot.sh`** : Arrête FreqTrad proprement
-- **`start-webserver.sh`** : Démarre FreqTrad avec l'interface web
-- **`restart-server.sh`** : Redémarre le serveur FreqTrad
+- **`diagnose-trading.sh`** : Diagnostic des trades et logs
 
 #### Scripts d'Optimisation
 
 - **`test-hyperopt.sh`** : Test rapide de l'hyperopt (10 epochs)
 - **`run-hyperopt.sh`** : Hyperopt standard (100 epochs)
-- **`run-full-hyperopt.sh`** : Hyperopt complet (500 epochs)
 - **`show-hyperopt-results.sh`** : Affiche les résultats d'optimisation
 - **`apply-best-params.sh`** : Applique les meilleurs paramètres trouvés
 
@@ -320,21 +297,15 @@ freqtrade install-ui
 
 - **`test-backtest.sh`** : Test rapide de backtesting (10 jours)
 - **`run-backtest.sh`** : Backtesting standard (1 mois)
-- **`run-full-backtest.sh`** : Backtesting complet (8 mois)
-- **`compare-strategies.sh`** : Compare toutes les stratégies
-- **`download-data.sh`** : Télécharge les données historiques
 
-#### Scripts de Diagnostic
+## Exemple de backtest
 
-- **`diagnose-trading.sh`** : Diagnostic complet du système de trading
-- **`monitor-trades.sh`** : Surveillance des trades en temps réel
-
-#### Scripts de Configuration
-
-- **`secure-config.sh`** : Sécurise la configuration
-- **`quick-install.sh`** : Installation rapide et automatique
-- **`generate-password.sh`** : Génère des mots de passe sécurisés
-- **`install-hyperopt-server.sh`** : Installation sur serveur Debian
+```bash
+freqtrade backtesting \
+  --config config.json \
+  --strategy HyperoptWorking \
+  --timeframe 5m
+```
 
 ### Utilisation des Scripts
 
@@ -342,20 +313,21 @@ freqtrade install-ui
 # Démarrer le bot avec choix interactif
 ./start-bot.sh
 
-# Démarrer le serveur web
-./start-webserver.sh
-
-# Redémarrer le serveur
-./restart-server.sh
-
 # Arrêter le bot
 ./stop-bot.sh
 
-# Sécuriser la configuration
-./secure-config.sh
+# Diagnostic des trades
+./diagnose-trading.sh
 
-# Voir les logs
-tail -f user_data/logs/freqtrade.log
+# Hyperoptimisation
+./test-hyperopt.sh
+./run-hyperopt.sh
+./show-hyperopt-results.sh
+./apply-best-params.sh
+
+# Backtesting
+./test-backtest.sh
+./run-backtest.sh
 ```
 
 ## 📊 Utilisation
@@ -379,80 +351,35 @@ freqtrade trade --config config.json --strategy SampleStrategy
 # Backtesting standard (1 mois)
 ./run-backtest.sh
 
-# Backtesting complet (8 mois)
-./run-full-backtest.sh
-
-# Comparer toutes les stratégies
-./compare-strategies.sh
-
-# Télécharger des données
-./download-data.sh
-```
-
 #### Utilisation Manuelle
 
 ```bash
 # Tester une stratégie sur des données historiques
 freqtrade backtesting \
     --config config.json \
-    --strategy SampleStrategy \
+    --strategy HyperoptWorking \
     --timerange 20240901-20240910
 ```
 
-### Hyperopt (Optimisation des paramètres)
+### 2. Autres Stratégies Disponibles
 
-#### Utilisation des Scripts (Recommandé)
+- **HyperoptOptimized** : Stratégie avec paramètres optimisés (générée automatiquement par `apply-best-params.sh`)
+- **HyperoptSimple** : Stratégie simplifiée pour hyperopt
+- **HyperoptStrategy** : Stratégie de base pour hyperopt
+- **PowerTowerStrategy** : Stratégie alternative avec indicateurs multiples
 
-```bash
-# Test rapide (10 epochs)
-./test-hyperopt.sh
-
-# Optimisation standard (100 epochs)
-./run-hyperopt.sh
-
-# Optimisation complète (500 epochs)
-./run-full-hyperopt.sh
-
-# Voir les résultats
-./show-hyperopt-results.sh
-
-# Appliquer les meilleurs paramètres
-./apply-best-params.sh
-```
-
-#### Utilisation Manuelle
+**Utilisation des autres stratégies :**
 
 ```bash
-# Optimiser les paramètres d'une stratégie
-freqtrade hyperopt \
-    --config config-usdt.json \
-    --strategy HyperoptWorking \
-    --hyperopt-loss SharpeHyperOptLoss \
-    --epochs 100 \
-    --spaces buy sell protection
+# Tester une stratégie spécifique
+./test-backtest.sh PowerTowerStrategy
+
+# Backtesting avec une stratégie
+./run-backtest.sh HyperoptOptimized
+
+# Démarrer le bot avec une stratégie
+./start-bot.sh PowerTowerStrategy
 ```
-
-## 🔒 Sécurité
-
-### Configuration Sécurisée
-
-1. **Changer le mot de passe par défaut** :
-
-   ```bash
-   ./generate-password.sh
-   # Puis éditer config.json avec le nouveau mot de passe
-   ```
-
-2. **Sécuriser l'accès API** :
-
-   ```bash
-   ./secure-config.sh
-   ```
-
-3. **Variables d'environnement** :
-   - Ne jamais commiter le fichier `.env`
-   - Utiliser des clés API avec permissions limitées
-   - Changer le JWT secret par défaut
 
 ### Accès Restreint
 
@@ -497,40 +424,32 @@ freqtrade hyperopt \
 ### Structure du Projet
 
 cypTrade/
-├── config.json # Configuration principale (USDC)
-├── config-usdt.json # Configuration USDT
-├── requirements.txt # Dépendances Python
-├── .env # Variables d'environnement
-├── README.md # Ce fichier
-├── start-webserver.sh # Script de démarrage
-├── restart-server.sh # Script de redémarrage
-├── secure-config.sh # Script de sécurisation
-├── quick-install.sh # Installation rapide
-├── generate-password.sh # Génération de mots de passe
-├── test-hyperopt.sh # Test hyperopt rapide
-├── run-hyperopt.sh # Hyperopt standard
-├── run-full-hyperopt.sh # Hyperopt complet
-├── show-hyperopt-results.sh # Affichage des résultats
-├── apply-best-params.sh # Application des paramètres
-├── test-backtest.sh # Test backtesting rapide
-├── run-backtest.sh # Backtesting standard
-├── run-full-backtest.sh # Backtesting complet
-├── compare-strategies.sh # Comparaison des stratégies
-├── download-data.sh # Téléchargement de données
-├── diagnose-trading.sh # Diagnostic du système
-├── monitor-trades.sh # Surveillance des trades
-├── install-hyperopt-server.sh # Installation serveur
+├── config.json                 # Configuration principale (USDT)
+├── config-usdt.json           # Configuration USDT étendue
+├── .env.example               # Variables d'environnement (template)
+├── requirements.txt           # Dépendances Python
+├── README.md                  # Documentation du projet
+├── start-bot.sh              # Démarrer le bot
+├── stop-bot.sh               # Arrêter le bot
+├── diagnose-trading.sh       # Diagnostic des trades
+├── run-hyperopt.sh           # Hyperoptimisation
+├── test-hyperopt.sh          # Test hyperopt rapide
+├── show-hyperopt-results.sh  # Afficher résultats
+├── apply-best-params.sh      # Appliquer meilleurs paramètres
+├── test-backtest.sh          # Backtest rapide
+├── run-backtest.sh           # Backtest standard
 └── user_data/
-    ├── logs/ # Logs FreqTrad
-    ├── data/ # Données historiques
-    ├── hyperopt_results/ # Résultats d'optimisation
-    ├── backtest_results/ # Résultats de backtesting
-    └── strategies/ # Stratégies de trading
-        ├── HyperoptWorking.py # ⭐ Stratégie principale
-        ├── PowerTowerStrategy.py
-        ├── MultiMAStrategy.py
-        ├── SampleStrategy.py
-        └── ...
+    ├── strategies/           # Stratégies de trading
+    │   ├── HyperoptWorking.py    # ⭐ Stratégie principale
+    │   ├── HyperoptWorking.json  # Paramètres optimisés
+    │   ├── HyperoptOptimized.py  # Stratégie optimisée
+    │   ├── HyperoptSimple.py     # Stratégie simple
+    │   ├── HyperoptStrategy.py   # Stratégie de base
+    │   └── PowerTowerStrategy.py # Stratégie alternative
+    ├── data/                 # Données historiques
+    │   └── binance/          # Données Binance (USDT/USDC)
+    ├── backtest_results/     # Résultats backtest
+    └── hyperopt_results/     # Résultats hyperopt
 
 ## 🔧 Dépannage
 
@@ -583,6 +502,8 @@ freqtrade --config config.json --strategy PowerTowerStrategy --dry-run
 - **Installez TOUJOURS l'interface web avant d'utiliser les scripts de trading**
 - **Utilisez HyperoptWorking pour de meilleures performances**
 - **Optimisez régulièrement vos stratégies avec l'hyperopt**
+- **Les stratégies actuelles ne sont pas rentables - testez avant utilisation**
+- **Utilisez `apply-best-params.sh` pour appliquer les paramètres optimisés**
 
 ## �� Documentation
 

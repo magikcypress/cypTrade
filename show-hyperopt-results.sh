@@ -59,14 +59,18 @@ freqtrade hyperopt-show --best
 
 echo ""
 
-# Afficher les pires résultats
-print_message "Pires résultats:"
-freqtrade hyperopt-show --worst
+# Afficher les résultats profitables uniquement
+print_message "Résultats profitables:"
+if freqtrade hyperopt-show --profitable 2>/dev/null; then
+    echo "Résultats profitables trouvés"
+else
+    echo "Aucun résultat profitable trouvé"
+fi
 
 echo ""
 
-# Afficher les statistiques
-print_message "Statistiques:"
-freqtrade hyperopt-show --results
+# Afficher les 5 meilleurs résultats (il n'y en a que 7 au total)
+print_message "Top 5 des meilleurs résultats:"
+freqtrade hyperopt-show --best -n 5
 
 print_success "Affichage des résultats terminé !"

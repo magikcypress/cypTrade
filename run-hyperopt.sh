@@ -65,7 +65,7 @@ freqtrade hyperopt \
     --timeframe "$TIMEFRAME" \
     --max-open-trades 1 \
     --dry-run-wallet 1000 \
-    --hyperopt-loss SharpeHyperOptLoss \
+    --hyperopt-loss MultiMetricHyperOptLoss \
     --random-state 42
 
 if [ $? -eq 0 ]; then
