@@ -1,5 +1,5 @@
 {
-    "max_open_trades": 3,
+    "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
@@ -11,8 +11,8 @@
     "cancel_open_orders_on_exit": false,
     "trading_mode": "spot",
     "margin_mode": "",
-    "verbosity": 0,
-    "logfile": "user_data/logs/freqtrade.log",
+    "verbosity": 1,
+    "logfile": "user_data/logs/freqtrade-multi-exchange.log",
     "unfilledtimeout": {
         "entry": 10,
         "exit": 10,
@@ -54,7 +54,6 @@
             "SOL/USDT",
             "DOT/USDT",
             "LINK/USDT",
-            "XRP/USDT",
             "MATIC/USDT"
         ],
         "pair_blacklist": [
@@ -69,7 +68,7 @@
     ],
     "edge": {
         "enabled": false,
-        "process_throttle_secs": 3600,
+        "process_throttle_secs": 5,
         "calculate_since_number_of_days": 7,
         "allowed_risk": 0.01,
         "stoploss_range_min": -0.01,
@@ -83,72 +82,24 @@
     },
     "telegram": {
         "enabled": false,
-        "token": "${TELEGRAM_TOKEN}",
-        "chat_id": "${TELEGRAM_CHAT_ID}",
-        "balance_dust_level": 0.01,
-        "reload": true,
-        "allow_custom_messages": true,
-        "keyboard": [
-            [
-                "/daily",
-                "/profit",
-                "/balance"
-            ],
-            [
-                "/count",
-                "/performance",
-                "/status"
-            ],
-            [
-                "/logs",
-                "/whitelist",
-                "/blacklist"
-            ],
-            [
-                "/trades",
-                "/stats",
-                "/version"
-            ]
-        ],
-        "notification_settings": {
-            "status": "on",
-            "warning": "on",
-            "startup": "on",
-            "entry": "on",
-            "entry_fill": "on",
-            "entry_cancel": "on",
-            "exit": "on",
-            "exit_fill": "on",
-            "exit_cancel": "on",
-            "protection_trigger": "on",
-            "protection_trigger_global": "on",
-            "show_candle": "off",
-            "show_entry": "on",
-            "show_exit": "on"
-        }
+        "token": "",
+        "chat_id": ""
     },
     "api_server": {
         "enabled": true,
-        "listen_ip_address": "0.0.0.0",
+        "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "error",
         "enable_openapi": false,
         "jwt_secret": "${JWT_SECRET}",
-        "CORS_origins": [
-            "http://localhost:8080",
-            "http://127.0.0.1:8080",
-            "http://${DOMAINE_NAME}:8080",
-            "https://${DOMAINE_NAME}:8080"
-        ],
+        "CORS_origins": [],
         "username": "${API_USERNAME}",
         "password": "${API_PASSWORD}"
     },
-    "bot_name": "cypTrade",
+    "bot_name": "botMulti",
     "initial_state": "running",
     "force_entry_enable": false,
-    "process_only_new_candles": true,
     "internals": {
         "process_throttle_secs": 5
-    },
-    "candle_type_def": "spot"
+    }
 }

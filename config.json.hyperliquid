@@ -142,7 +142,7 @@
         "username": "${API_USERNAME}",
         "password": "${API_PASSWORD}"
     },
-    "bot_name": "cypTrade",
+    "bot_name": "cypTradeHyperliquid",
     "initial_state": "running",
     "force_entry_enable": false,
     "process_only_new_candles": true,

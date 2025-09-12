@@ -1,18 +1,18 @@
 {
-    "max_open_trades": 1,
+    "max_open_trades": 3,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
-    "fiat_display_currency": "USD",
+    "fiat_display_currency": "",
     "timeframe": "5m",
     "timeframe_detail": "1m",
     "dry_run": true,
     "dry_run_wallet": 1000,
-    "cancel_open_orders_on_exit": false,
+    "cancel_open_trades_on_exit": false,
     "trading_mode": "spot",
     "margin_mode": "",
     "verbosity": 0,
-    "logfile": "user_data/logs/freqtrade-usdt.log",
+    "logfile": "user_data/logs/freqtrade-TrendFollowingStrategy.log",
     "unfilledtimeout": {
         "entry": 10,
         "exit": 10,
@@ -36,13 +36,9 @@
     },
     "exchange": {
         "name": "binance",
-        "key": "${BINANCE_API_KEY}",
-        "secret": "${BINANCE_SECRET}",
-        "ccxt_config": {
-            "rateLimit": 100,
-            "timeout": 30000,
-            "enableRateLimit": true
-        },
+        "key": "",
+        "secret": "",
+        "ccxt_config": {},
         "ccxt_async_config": {},
         "pair_whitelist": [
             "BTC/USDT",
@@ -52,9 +48,7 @@
             "SOL/USDT",
             "DOT/USDT",
             "LINK/USDT",
-            "MATIC/USDT",
-            "XRP/USDT",
-            "AVAX/USDT"
+            "XRP/USDT"
         ],
         "pair_blacklist": [
             "BNB/BTC",
@@ -74,75 +68,32 @@
         "stoploss_range_min": -0.01,
         "stoploss_range_max": -0.1,
         "stoploss_range_step": -0.01,
-        "minimum_winrate": 0.60,
-        "minimum_expectancy": 0.20,
+        "minimum_winrate": 0.6,
+        "minimum_expectancy": 0.2,
         "min_trade_number": 10,
         "max_trade_duration_minute": 1440,
         "remove_pumps": false
     },
     "telegram": {
         "enabled": false,
-        "token": "${TELEGRAM_TOKEN}",
-        "chat_id": "${TELEGRAM_CHAT_ID}",
-        "balance_dust_level": 0.01,
-        "reload": true,
-        "allow_custom_messages": true,
-        "keyboard": [
-            [
-                "/daily",
-                "/profit",
-                "/balance"
-            ],
-            [
-                "/count",
-                "/performance",
-                "/status"
-            ],
-            [
-                "/logs",
-                "/whitelist",
-                "/blacklist"
-            ],
-            [
-                "/trades",
-                "/stats",
-                "/version"
-            ]
-        ],
-        "notification_settings": {
-            "status": "on",
-            "warning": "on",
-            "startup": "on",
-            "entry": "on",
-            "entry_fill": "on",
-            "entry_cancel": "on",
-            "exit": "on",
-            "exit_fill": "on",
-            "exit_cancel": "on",
-            "protection_trigger": "on",
-            "protection_trigger_global": "on",
-            "show_candle": "off",
-            "show_entry": "on",
-            "show_exit": "on"
-        }
+        "token": "",
+        "chat_id": ""
     },
     "api_server": {
         "enabled": true,
-        "listen_ip_address": "0.0.0.0",
+        "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "error",
-        "enable_openapi": false,
-        "jwt_secret": "${JWT_SECRET}",
+        "enable_openapi": true,
+        "jwt_secret": "my_super_secret_jwt_key_2025",
         "CORS_origins": [
             "http://localhost:8080",
-            "http://127.0.0.1:8080",
-            "http://${DOMAINE_NAME}:8080",
-            "https://${DOMAINE_NAME}:8080"
+            "http://127.0.0.1:8080"
         ],
-        "username": "${API_USERNAME}",
-        "password": "${API_PASSWORD}"
+        "username": "freqtrade",
+        "password": "freqtrade123"
     },
-    "bot_name": "cypTradeUSDT",
+    "bot_name": "cypTrade-TrendFollowingStrategy",
     "initial_state": "running",
     "force_entry_enable": false,
     "process_only_new_candles": true,
