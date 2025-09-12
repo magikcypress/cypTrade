@@ -643,7 +643,8 @@ cypTrade/
 │
 ├── 📖 DOCUMENTATION
 │   ├── README.md                     # Documentation principale
-│   └── GUIDE-MULTI-STRATEGIES.md    # Guide complet multi-strégies
+│   ├── GUIDE-MULTI-STRATEGIES.md    # Guide complet multi-strégies
+│   └── LICENSE                       # Licence MIT
 │
 ├── 🚀 SCRIPTS MULTI-STRÉGIES (NOUVEAU)
 │   ├── manage-strategies.sh          # Gestionnaire complet multi-strégies
